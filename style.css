@@ -1,11 +1,13 @@
 /* --- CSS VARIABLES --- */
 :root {
     --bg-color: #ffffff;
+    --bg-alt: #f5f5f5; /* Darkened slightly from #f9f9f9 for better section contrast */
     --text-main: #1a1a1a;
     --text-muted: #666666;
-    --accent-color: #2563eb; /* Professional blue accent */
+    --accent-color: #2563eb;
+    --border-light: #eeeeee;
     --font-main: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-    --section-padding: 120px;
+    --section-padding: 140px; /* Increased vertical spacing for better breathability */
 }
 
 /* --- RESET & BASE --- */
@@ -56,13 +58,13 @@ body {
 
 /* --- HERO SECTION --- */
 .hero {
-    /* Large vertical padding to ensure visual dominance */
     padding: var(--section-padding) 0;
     text-align: center;
 }
 
 .hero-content {
     max-width: 800px;
+    margin: 0 auto;
 }
 
 .hero h1 {
@@ -73,16 +75,16 @@ body {
     letter-spacing: -1px;
 }
 
+/* Refinement 1: Reduced letter-spacing for calmer hierarchy */
 .hero p {
-    font-size: 20px;
+    font-size: 18px;
     color: var(--text-muted);
     margin-bottom: 40px;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.5px; 
     text-transform: uppercase;
-    font-weight: 400;
+    font-weight: 500;
 }
 
-/* Primary Button Design */
 .btn-primary {
     background-color: var(--accent-color);
     color: white;
@@ -93,10 +95,72 @@ body {
     font-weight: 500;
 }
 
+/* --- SERVICES SECTION --- */
+.services {
+    padding: var(--section-padding) 0;
+    background-color: var(--bg-color);
+}
+
+.section-title {
+    font-size: 32px;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 60px;
+}
+
+.services-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+}
+
+.service-card {
+    padding: 40px;
+    border: 1px solid var(--border-light);
+    border-radius: 4px;
+    background-color: var(--bg-color);
+}
+
+.service-card h3 {
+    font-size: 20px;
+    margin-bottom: 16px;
+    font-weight: 600;
+}
+
+.service-card p {
+    color: var(--text-muted);
+    font-size: 16px;
+}
+
+/* --- CTA SECTION --- */
+/* Refinement 2: Increased padding and slightly darker background for impact */
+.cta {
+    padding: 160px 0; 
+    background-color: var(--bg-alt);
+    text-align: center;
+}
+
+.cta-content h2 {
+    font-size: 36px;
+    font-weight: 700;
+    margin-bottom: 32px;
+    letter-spacing: -0.5px;
+}
+
+.btn-cta {
+    background-color: var(--text-main);
+    color: white;
+    padding: 16px 40px;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    font-weight: 500;
+}
+
 /* --- FOOTER --- */
 .site-footer {
     padding: 60px 0;
-    border-top: 1px solid #eeeeee; /* Visual separation */
+    border-top: 1px solid var(--border-light);
     text-align: center;
 }
 
@@ -105,9 +169,15 @@ body {
     color: var(--text-muted);
 }
 
-/* Responsive adjustments for basic clarity */
+/* --- RESPONSIVE --- */
+@media (max-width: 900px) {
+    .services-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
 @media (max-width: 768px) {
     .hero h1 { font-size: 32px; }
     .hero p { font-size: 16px; }
-    .hero { padding: 80px 0; }
+    .cta-content h2 { font-size: 28px; }
 }
