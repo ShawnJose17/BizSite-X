@@ -1,13 +1,13 @@
 /* --- CSS VARIABLES --- */
 :root {
     --bg-color: #ffffff;
-    --bg-alt: #f5f5f5; /* Darkened slightly from #f9f9f9 for better section contrast */
+    --bg-alt: #f5f5f5;
     --text-main: #1a1a1a;
     --text-muted: #666666;
     --accent-color: #2563eb;
     --border-light: #eeeeee;
     --font-main: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-    --section-padding: 140px; /* Increased vertical spacing for better breathability */
+    --section-padding: 140px;
 }
 
 /* --- RESET & BASE --- */
@@ -75,7 +75,6 @@ body {
     letter-spacing: -1px;
 }
 
-/* Refinement 1: Reduced letter-spacing for calmer hierarchy */
 .hero p {
     font-size: 18px;
     color: var(--text-muted);
@@ -93,6 +92,7 @@ body {
     border-radius: 4px;
     font-size: 16px;
     font-weight: 500;
+    display: inline-block;
 }
 
 /* --- SERVICES SECTION --- */
@@ -133,7 +133,6 @@ body {
 }
 
 /* --- CTA SECTION --- */
-/* Refinement 2: Increased padding and slightly darker background for impact */
 .cta {
     padding: 160px 0; 
     background-color: var(--bg-alt);
@@ -155,6 +154,7 @@ body {
     border-radius: 4px;
     font-size: 16px;
     font-weight: 500;
+    display: inline-block;
 }
 
 /* --- FOOTER --- */
@@ -169,15 +169,88 @@ body {
     color: var(--text-muted);
 }
 
-/* --- RESPONSIVE --- */
-@media (max-width: 900px) {
+/* --- TABLET ADJUSTMENTS (992px and below) --- */
+@media (max-width: 992px) {
+    :root {
+        --section-padding: 100px;
+    }
+
+    /* Tablet Choice: 1-column layout with increased vertical breathing room */
     .services-grid {
         grid-template-columns: 1fr;
+        max-width: 600px;
+        margin: 0 auto;
+        gap: 40px;
+    }
+
+    .cta {
+        padding: 120px 0;
     }
 }
 
-@media (max-width: 768px) {
-    .hero h1 { font-size: 32px; }
-    .hero p { font-size: 16px; }
-    .cta-content h2 { font-size: 28px; }
+/* --- MOBILE ADJUSTMENTS (600px and below) --- */
+@media (max-width: 600px) {
+    .container {
+        padding: 0 24px;
+    }
+
+    /* Header: Stack links carefully to prevent overflow while keeping logo left */
+    .header-flex {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+    }
+
+    .nav-links {
+        display: flex;
+        gap: 20px;
+    }
+
+    .nav-links a {
+        margin-left: 0;
+        font-size: 13px;
+    }
+
+    /* Hero: Reduce font sizes and tighten spacing for mobile viewports */
+    .hero {
+        padding: 80px 0;
+        text-align: left; /* Shift to left-align for better readability on narrow screens */
+    }
+
+    .hero h1 {
+        font-size: 32px;
+        margin-bottom: 16px;
+    }
+
+    .hero p {
+        font-size: 14px;
+        margin-bottom: 32px;
+    }
+
+    .btn-primary, .btn-cta {
+        width: 100%; /* Full width buttons for easier tapping */
+        text-align: center;
+    }
+
+    /* Services: Stacked with reduced card padding */
+    .section-title {
+        font-size: 28px;
+        text-align: left;
+        margin-bottom: 40px;
+    }
+
+    .service-card {
+        padding: 30px 24px;
+    }
+
+    /* CTA: Adjusted for mobile scale */
+    .cta {
+        padding: 80px 0;
+        text-align: left;
+    }
+
+    .cta-content h2 {
+        font-size: 28px;
+        margin-bottom: 24px;
+    }
 }
