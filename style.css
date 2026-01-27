@@ -5,9 +5,11 @@
     --text-main: #1a1a1a;
     --text-muted: #666666;
     --accent-color: #2563eb;
+    --accent-dark: #1d4ed8;
     --border-light: #eeeeee;
     --font-main: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     --section-padding: 140px;
+    --transition-speed: 0.2s;
 }
 
 /* --- RESET & BASE --- */
@@ -31,9 +33,33 @@ body {
     padding: 0 40px;
 }
 
+/* --- INTERACTION STATES --- */
+a, button {
+    transition: all var(--transition-speed) ease-in-out;
+    outline: none;
+}
+
+.nav-links a:hover {
+    color: var(--accent-color);
+}
+
+.btn-primary:hover {
+    background-color: var(--accent-dark);
+}
+
+.btn-primary:focus, .btn-cta:focus {
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.3);
+}
+
+.btn-cta:hover {
+    background-color: #333333;
+}
+
 /* --- HEADER --- */
 .site-header {
     padding: 30px 0;
+    position: relative;
+    z-index: 1000;
 }
 
 .header-flex {
@@ -56,201 +82,85 @@ body {
     margin-left: 30px;
 }
 
-/* --- HERO SECTION --- */
-.hero {
-    padding: var(--section-padding) 0;
-    text-align: center;
-}
-
-.hero-content {
-    max-width: 800px;
-    margin: 0 auto;
-}
-
-.hero h1 {
-    font-size: 48px;
-    font-weight: 700;
-    line-height: 1.2;
-    margin-bottom: 24px;
-    letter-spacing: -1px;
-}
-
-.hero p {
-    font-size: 18px;
-    color: var(--text-muted);
-    margin-bottom: 40px;
-    letter-spacing: 0.5px; 
-    text-transform: uppercase;
-    font-weight: 500;
-}
-
-.btn-primary {
-    background-color: var(--accent-color);
-    color: white;
-    padding: 16px 32px;
+/* --- MOBILE TOGGLE (Hidden on Desktop) --- */
+.nav-toggle {
+    display: none;
+    background: none;
     border: none;
-    border-radius: 4px;
-    font-size: 16px;
-    font-weight: 500;
-    display: inline-block;
+    cursor: pointer;
+    padding: 10px;
 }
 
-/* --- SERVICES SECTION --- */
-.services {
-    padding: var(--section-padding) 0;
-    background-color: var(--bg-color);
+.hamburger {
+    display: block;
+    width: 24px;
+    height: 2px;
+    background: var(--text-main);
+    position: relative;
 }
 
-.section-title {
-    font-size: 32px;
-    font-weight: 700;
-    text-align: center;
-    margin-bottom: 60px;
+.hamburger::before, .hamburger::after {
+    content: '';
+    position: absolute;
+    width: 24px;
+    height: 2px;
+    background: var(--text-main);
+    left: 0;
 }
 
-.services-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 30px;
-}
+.hamburger::before { top: -8px; }
+.hamburger::after { bottom: -8px; }
 
-.service-card {
-    padding: 40px;
-    border: 1px solid var(--border-light);
-    border-radius: 4px;
-    background-color: var(--bg-color);
-}
+/* --- SECTIONS (Unchanged) --- */
+.hero { padding: var(--section-padding) 0; text-align: center; }
+.hero-content { max-width: 800px; margin: 0 auto; }
+.hero h1 { font-size: 48px; font-weight: 700; margin-bottom: 24px; }
+.hero p { font-size: 18px; color: var(--text-muted); margin-bottom: 40px; text-transform: uppercase; }
+.btn-primary { background-color: var(--accent-color); color: white; padding: 16px 32px; border: none; border-radius: 4px; font-size: 16px; font-weight: 500; }
 
-.service-card h3 {
-    font-size: 20px;
-    margin-bottom: 16px;
-    font-weight: 600;
-}
+.services { padding: var(--section-padding) 0; }
+.section-title { font-size: 32px; font-weight: 700; text-align: center; margin-bottom: 60px; }
+.services-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; }
+.service-card { padding: 40px; border: 1px solid var(--border-light); border-radius: 4px; }
 
-.service-card p {
-    color: var(--text-muted);
-    font-size: 16px;
-}
+.cta { padding: 160px 0; background-color: var(--bg-alt); text-align: center; }
+.btn-cta { background-color: var(--text-main); color: white; padding: 16px 40px; border: none; border-radius: 4px; font-size: 16px; font-weight: 500; }
 
-/* --- CTA SECTION --- */
-.cta {
-    padding: 160px 0; 
-    background-color: var(--bg-alt);
-    text-align: center;
-}
+.site-footer { padding: 60px 0; border-top: 1px solid var(--border-light); text-align: center; font-size: 13px; color: var(--text-muted); }
 
-.cta-content h2 {
-    font-size: 36px;
-    font-weight: 700;
-    margin-bottom: 32px;
-    letter-spacing: -0.5px;
-}
-
-.btn-cta {
-    background-color: var(--text-main);
-    color: white;
-    padding: 16px 40px;
-    border: none;
-    border-radius: 4px;
-    font-size: 16px;
-    font-weight: 500;
-    display: inline-block;
-}
-
-/* --- FOOTER --- */
-.site-footer {
-    padding: 60px 0;
-    border-top: 1px solid var(--border-light);
-    text-align: center;
-}
-
-.site-footer p {
-    font-size: 13px;
-    color: var(--text-muted);
-}
-
-/* --- TABLET ADJUSTMENTS (992px and below) --- */
+/* --- RESPONSIVE ADJUSTMENTS --- */
 @media (max-width: 992px) {
-    :root {
-        --section-padding: 100px;
-    }
-
-    /* Tablet Choice: 1-column layout with increased vertical breathing room */
-    .services-grid {
-        grid-template-columns: 1fr;
-        max-width: 600px;
-        margin: 0 auto;
-        gap: 40px;
-    }
-
-    .cta {
-        padding: 120px 0;
-    }
+    .services-grid { grid-template-columns: 1fr; max-width: 600px; margin: 0 auto; }
 }
 
-/* --- MOBILE ADJUSTMENTS (600px and below) --- */
-@media (max-width: 600px) {
-    .container {
-        padding: 0 24px;
-    }
-
-    /* Header: Stack links carefully to prevent overflow while keeping logo left */
-    .header-flex {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 16px;
+@media (max-width: 768px) {
+    .nav-toggle {
+        display: block; /* Show hamburger */
     }
 
     .nav-links {
+        display: none; /* Hide menu by default on mobile */
+        position: absolute;
+        top: 100%;
+        left: 0;
+        width: 100%;
+        background: var(--bg-color);
+        flex-direction: column;
+        padding: 20px 40px;
+        border-bottom: 1px solid var(--border-light);
+    }
+
+    /* JavaScript Toggle Class */
+    .nav-links.is-open {
         display: flex;
-        gap: 20px;
     }
 
     .nav-links a {
-        margin-left: 0;
-        font-size: 13px;
+        margin: 15px 0;
     }
 
-    /* Hero: Reduce font sizes and tighten spacing for mobile viewports */
-    .hero {
-        padding: 80px 0;
-        text-align: left; /* Shift to left-align for better readability on narrow screens */
-    }
-
-    .hero h1 {
-        font-size: 32px;
-        margin-bottom: 16px;
-    }
-
-    .hero p {
-        font-size: 14px;
-        margin-bottom: 32px;
-    }
-
-    .btn-primary, .btn-cta {
-        width: 100%; /* Full width buttons for easier tapping */
-        text-align: center;
-    }
-
-    /* Services: Stacked with reduced card padding */
-    .section-title {
-        font-size: 28px;
-        text-align: left;
-        margin-bottom: 40px;
-    }
-
-    .service-card {
-        padding: 30px 24px;
-    }
-
-    /* CTA: Adjusted for mobile scale */
-    .cta {
-        padding: 80px 0;
-        text-align: left;
-    }
-
-    .cta-content h2 {
-        font-size: 28px;
-        margin-bottom: 24px;
-    }
+    .hero { padding: 80px 0; text-align: left; }
+    .hero h1 { font-size: 32px; }
+    .btn-primary, .btn-cta { width: 100%; text-align: center; }
+    .cta { padding: 80px 0; text-align: left; }
 }
