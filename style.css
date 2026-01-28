@@ -111,7 +111,7 @@ a, button {
 .hamburger::before { top: -8px; }
 .hamburger::after { bottom: -8px; }
 
-/* --- SECTIONS (Unchanged) --- */
+/* --- SECTIONS --- */
 .hero { padding: var(--section-padding) 0; text-align: center; }
 .hero-content { max-width: 800px; margin: 0 auto; }
 .hero h1 { font-size: 48px; font-weight: 700; margin-bottom: 24px; }
@@ -129,36 +129,59 @@ a, button {
 .site-footer { padding: 60px 0; border-top: 1px solid var(--border-light); text-align: center; font-size: 13px; color: var(--text-muted); }
 
 /* --- RESPONSIVE ADJUSTMENTS --- */
+
 @media (max-width: 992px) {
     .services-grid { grid-template-columns: 1fr; max-width: 600px; margin: 0 auto; }
 }
 
 @media (max-width: 768px) {
     .nav-toggle {
-        display: block; /* Show hamburger */
+        display: block;
     }
 
     .nav-links {
-        display: none; /* Hide menu by default on mobile */
+        display: flex; 
+        flex-direction: column;
         position: absolute;
         top: 100%;
         left: 0;
         width: 100%;
         background: var(--bg-color);
-        flex-direction: column;
-        padding: 20px 40px;
+        padding: 0 40px;
         border-bottom: 1px solid var(--border-light);
+        
+        /* State Handling: Hidden */
+        overflow: hidden;
+        max-height: 0;
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+        transform: translateY(-8px);
+        
+        /* Transition: Combined container motion only */
+        transition: 
+            max-height 0.25s ease-out,
+            opacity 0.2s ease-out,
+            transform 0.25s ease-out;
     }
 
-    /* JavaScript Toggle Class */
+    /* State Handling: Open */
     .nav-links.is-open {
-        display: flex;
+        max-height: 350px; /* High enough to contain links without delay */
+        opacity: 1;
+        visibility: visible;
+        pointer-events: auto;
+        transform: translateY(0);
+        padding-bottom: 30px;
     }
 
     .nav-links a {
         margin: 15px 0;
+        margin-left: 0; /* Reset desktop margin */
+        /* Link-level opacity removed to eliminate micro-animation */
     }
 
+    /* Structural adjustments remain unchanged */
     .hero { padding: 80px 0; text-align: left; }
     .hero h1 { font-size: 32px; }
     .btn-primary, .btn-cta { width: 100%; text-align: center; }
