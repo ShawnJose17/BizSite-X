@@ -1,1 +1,0 @@
-Add you images into this folder to be accessed by the HTML file.
