@@ -17,14 +17,18 @@
     --space-6: 48px;
     --space-7: 64px;
 
-    /* Typography Scale */
+    /* REFINEMENT 1: Stabilized Vertical Spacing */
+    /* Switched from vh to vw for more predictable scaling across devices */
+    --section-padding: clamp(64px, 8vw, 140px);
+
+    /* REFINEMENT 3: Fluid Typography Improvements */
     --text-xs: 13px;
     --text-sm: 14px;
     --text-base: 16px;
-    --text-lg: 18px;
+    --text-lg: clamp(16px, 1.5vw + 0.5rem, 18px); 
     --text-xl: 20px;
-    --text-2xl: 32px;
-    --text-3xl: 48px;
+    --text-2xl: clamp(1.75rem, 4vw + 1rem, 2rem); 
+    --text-3xl: clamp(2rem, 5vw + 1rem, 3rem); 
 
     --font-main: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     --transition-speed: 0.2s;
@@ -55,7 +59,6 @@ body {
 
 /* --- SYSTEM PRIMITIVES --- */
 
-/* Button System */
 .btn {
     display: inline-block;
     padding: var(--space-3) var(--space-5);
@@ -70,28 +73,26 @@ body {
     text-decoration: none;
 }
 
-.btn-primary {
-    background-color: var(--accent-color);
-    color: white;
-}
+.btn-primary { background-color: var(--accent-color); color: white; }
 .btn-primary:hover { background-color: var(--accent-dark); }
 .btn-primary:focus { box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.3); }
 
-.btn-dark {
-    background-color: var(--text-main);
-    color: white;
-}
+.btn-dark { background-color: var(--text-main); color: white; }
 .btn-dark:hover { background-color: #333333; }
 .btn-dark:focus { box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.2); }
 
-/* Card System */
+/* REFINEMENT 2: Strict Card Discipline */
+/* Card primitive now handles visual structure only, no magic padding */
 .card {
     background-color: var(--bg-color);
     border: 1px solid var(--border-light);
     border-radius: var(--radius);
-    padding: var(--space-6) var(--space-5);
     transition: border-color var(--transition-speed), box-shadow var(--transition-speed);
 }
+
+/* Specific cards manage their own internal breathing room */
+.service-card { padding: var(--space-6) var(--space-5); }
+.testimonial-card { padding: var(--space-6); }
 
 /* --- HEADER --- */
 .site-header {
@@ -120,125 +121,83 @@ body {
     margin-left: var(--space-5);
     transition: color var(--transition-speed);
 }
-
 .nav-links a:hover { color: var(--accent-color); }
 
 /* --- SECTIONS --- */
 
-/* Hero */
-.hero { padding: 140px 0; text-align: center; }
-.hero h1 { font-size: var(--text-3xl); font-weight: 700; margin-bottom: var(--space-4); letter-spacing: -1px; }
-.hero p { font-size: var(--text-lg); color: var(--text-muted); margin-bottom: var(--space-5); text-transform: uppercase; letter-spacing: 0.5px; }
+.hero { padding: var(--section-padding) 0; text-align: center; }
+.hero h1 { 
+    font-size: var(--text-3xl); 
+    font-weight: 700; 
+    margin-bottom: var(--space-4); 
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+}
 
-/* Services */
-.services { padding: 140px 0; }
+.hero p { 
+    font-size: var(--text-lg); 
+    color: var(--text-muted); 
+    margin-bottom: var(--space-5); 
+    /* REFINEMENT 3: Removed uppercase & added character limit for better flow */
+    letter-spacing: normal; 
+    max-width: 60ch;
+    margin-inline: auto;
+}
+
+/* INTRINSIC GRID (No media queries needed for layout) */
+.services-grid, 
+.testimonials-grid { 
+    display: grid; 
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); 
+    gap: var(--space-5); 
+}
+
+.services { padding: var(--section-padding) 0; }
 .section-title { font-size: var(--text-2xl); font-weight: 700; text-align: center; margin-bottom: var(--space-7); }
-.services-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-5); }
 .service-card h3 { font-size: var(--text-xl); margin-bottom: var(--space-3); }
-.service-card p { color: var(--text-muted); }
 
-/* Testimonials */
-.testimonials { padding: 140px 0; background-color: var(--bg-color); }
-.testimonials-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-5); }
-
+.testimonials { padding: var(--section-padding) 0; background-color: var(--bg-color); }
 .testimonial-card:hover, .testimonial-card:focus-visible {
     border-color: var(--accent-color);
     box-shadow: 0 10px 30px -15px rgba(0, 0, 0, 0.05);
     outline: none;
 }
 
-.quote-text { font-size: var(--text-lg); line-height: 1.6; margin-bottom: var(--space-5); font-style: normal; }
+.quote-text { font-size: var(--text-lg); line-height: 1.6; margin-bottom: var(--space-5); }
 .testimonial-author { display: flex; align-items: center; gap: var(--space-3); }
 .avatar { width: 48px; height: 48px; border-radius: 50%; overflow: hidden; flex-shrink: 0; background-color: var(--bg-alt); }
 .avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.author-name { font-weight: 600; font-size: var(--text-base); display: block; font-style: normal; }
+.author-name { font-weight: 600; font-size: var(--text-base); display: block; }
 .author-role { font-size: var(--text-sm); color: var(--text-muted); }
 
-/* CTA */
-.cta { padding: 160px 0; background-color: var(--bg-alt); text-align: center; }
+.cta { padding: var(--section-padding) 0; background-color: var(--bg-alt); text-align: center; }
 .cta h2 { font-size: var(--text-2xl); margin-bottom: var(--space-5); }
 
-/* Footer */
 .site-footer { padding: var(--space-7) 0; border-top: 1px solid var(--border-light); text-align: center; font-size: var(--text-xs); color: var(--text-muted); }
 
 /* --- MOBILE NAVIGATION --- */
-.nav-toggle {
-    display: none;
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: var(--space-2);
-}
-
-.hamburger {
-    display: block;
-    width: 24px;
-    height: 2px;
-    background: var(--text-main);
-    position: relative;
-}
-
-.hamburger::before, .hamburger::after {
-    content: '';
-    position: absolute;
-    width: 24px;
-    height: 2px;
-    background: var(--text-main);
-    left: 0;
-}
-.hamburger::before { top: -8px; }
-.hamburger::after { bottom: -8px; }
-
-/* --- RESPONSIVE ADJUSTMENTS --- */
-
-@media (max-width: 992px) {
-    .services-grid { grid-template-columns: 1fr; max-width: 600px; margin: 0 auto; }
-    .testimonials-grid { grid-template-columns: repeat(2, 1fr); }
-}
-
 @media (max-width: 768px) {
-    .nav-toggle { display: block; }
+    .nav-toggle { display: block; background: none; border: none; cursor: pointer; padding: var(--space-2); }
+    .hamburger, .hamburger::before, .hamburger::after { 
+        display: block; width: 24px; height: 2px; background: var(--text-main); position: relative; content: '';
+    }
+    .hamburger::before { top: -8px; position: absolute; }
+    .hamburger::after { bottom: -8px; position: absolute; }
+
     .nav-links {
-        display: flex; 
-        flex-direction: column;
-        position: absolute;
-        top: 100%;
-        left: 0;
-        width: 100%;
-        background: var(--bg-color);
-        padding: 0 var(--space-7);
-        border-bottom: 1px solid var(--border-light);
-        overflow: hidden;
-        max-height: 0;
-        opacity: 0;
-        visibility: hidden;
-        pointer-events: none;
-        transform: translateY(-8px);
+        display: flex; flex-direction: column; position: absolute; top: 100%; left: 0; width: 100%;
+        background: var(--bg-color); padding: 0 var(--space-7); border-bottom: 1px solid var(--border-light);
+        overflow: hidden; max-height: 0; opacity: 0; visibility: hidden;
         transition: max-height 0.25s ease-out, opacity 0.2s ease-out, transform 0.25s ease-out;
+        transform: translateY(-8px);
     }
 
     .nav-links.is-open {
-        max-height: 350px;
-        opacity: 1;
-        visibility: visible;
-        pointer-events: auto;
-        transform: translateY(0);
-        padding-bottom: var(--space-5);
+        max-height: 350px; opacity: 1; visibility: visible;
+        pointer-events: auto; transform: translateY(0); padding-bottom: var(--space-5);
     }
 
     .nav-links a { margin: var(--space-3) 0; margin-left: 0; }
-
-    .hero { padding: var(--space-7) 0; }
-    .hero h1 { font-size: var(--text-2xl); }
-    .btn { width: 100%; }
     
-    .testimonials-grid { grid-template-columns: 1fr; }
-    .card { padding: var(--space-5); }
-    .quote-text { font-size: 17px; }
-
-    .cta { padding: var(--space-7) 0; }
-}
-
-@media (min-width: 1024px) {
-    .testimonial-card { padding: var(--space-6); }
+    .btn { width: 100%; }
 }
