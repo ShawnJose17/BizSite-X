@@ -8,7 +8,6 @@
     --accent-dark: #1d4ed8;
     --border-light: #eeeeee;
 
-    /* Spacing Scale */
     --space-1: 4px;
     --space-2: 8px;
     --space-3: 16px;
@@ -17,11 +16,8 @@
     --space-6: 48px;
     --space-7: 64px;
 
-    /* REFINEMENT 1: Stabilized Vertical Spacing */
-    /* Switched from vh to vw for more predictable scaling across devices */
     --section-padding: clamp(64px, 8vw, 140px);
 
-    /* REFINEMENT 3: Fluid Typography Improvements */
     --text-xs: 13px;
     --text-sm: 14px;
     --text-base: 16px;
@@ -36,11 +32,7 @@
 }
 
 /* --- RESET & BASE --- */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
+* { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
     font-family: var(--font-main);
@@ -49,6 +41,23 @@ body {
     line-height: 1.6;
     font-size: var(--text-base);
     -webkit-font-smoothing: antialiased;
+}
+
+/* --- DAY 9: LAYOUT UTILITY LAYER --- */
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3); /* Standard vertical rhythm */
+}
+
+.cluster {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3); /* Standard horizontal alignment */
+}
+
+.center {
+  text-align: center;
 }
 
 .container {
@@ -81,8 +90,6 @@ body {
 .btn-dark:hover { background-color: #333333; }
 .btn-dark:focus { box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.2); }
 
-/* REFINEMENT 2: Strict Card Discipline */
-/* Card primitive now handles visual structure only, no magic padding */
 .card {
     background-color: var(--bg-color);
     border: 1px solid var(--border-light);
@@ -90,61 +97,22 @@ body {
     transition: border-color var(--transition-speed), box-shadow var(--transition-speed);
 }
 
-/* Specific cards manage their own internal breathing room */
 .service-card { padding: var(--space-6) var(--space-5); }
 .testimonial-card { padding: var(--space-6); }
 
 /* --- HEADER --- */
-.site-header {
-    padding: var(--space-5) 0;
-    position: relative;
-    z-index: 1000;
-}
-
-.header-flex {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.logo {
-    font-size: var(--text-xl);
-    font-weight: 700;
-    letter-spacing: -0.5px;
-}
-
-.nav-links a {
-    text-decoration: none;
-    color: var(--text-main);
-    font-size: var(--text-sm);
-    font-weight: 500;
-    margin-left: var(--space-5);
-    transition: color var(--transition-speed);
-}
+.site-header { padding: var(--space-5) 0; position: relative; z-index: 1000; }
+.header-flex { display: flex; justify-content: space-between; align-items: center; }
+.logo { font-size: var(--text-xl); font-weight: 700; letter-spacing: -0.5px; }
+.nav-links a { text-decoration: none; color: var(--text-main); font-size: var(--text-sm); font-weight: 500; margin-left: var(--space-5); transition: color var(--transition-speed); }
 .nav-links a:hover { color: var(--accent-color); }
 
 /* --- SECTIONS --- */
 
 .hero { padding: var(--section-padding) 0; text-align: center; }
-.hero h1 { 
-    font-size: var(--text-3xl); 
-    font-weight: 700; 
-    margin-bottom: var(--space-4); 
-    letter-spacing: -0.02em;
-    line-height: 1.1;
-}
+.hero h1 { font-size: var(--text-3xl); font-weight: 700; margin-bottom: var(--space-4); letter-spacing: -0.02em; line-height: 1.1; }
+.hero p { font-size: var(--text-lg); color: var(--text-muted); margin-bottom: var(--space-5); max-width: 60ch; margin-inline: auto; }
 
-.hero p { 
-    font-size: var(--text-lg); 
-    color: var(--text-muted); 
-    margin-bottom: var(--space-5); 
-    /* REFINEMENT 3: Removed uppercase & added character limit for better flow */
-    letter-spacing: normal; 
-    max-width: 60ch;
-    margin-inline: auto;
-}
-
-/* INTRINSIC GRID (No media queries needed for layout) */
 .services-grid, 
 .testimonials-grid { 
     display: grid; 
@@ -153,9 +121,9 @@ body {
 }
 
 .services { padding: var(--section-padding) 0; }
-.section-title { font-size: var(--text-2xl); font-weight: 700; text-align: center; margin-bottom: var(--space-7); }
-.service-card h3 { font-size: var(--text-xl); margin-bottom: var(--space-3); }
+.section-title { font-size: var(--text-2xl); font-weight: 700; margin-bottom: var(--space-7); text-align: center;}
 
+/* REFACTORED: Testimonial styles are now purely decorative/thematic */
 .testimonials { padding: var(--section-padding) 0; background-color: var(--bg-color); }
 .testimonial-card:hover, .testimonial-card:focus-visible {
     border-color: var(--accent-color);
@@ -163,8 +131,9 @@ body {
     outline: none;
 }
 
-.quote-text { font-size: var(--text-lg); line-height: 1.6; margin-bottom: var(--space-5); }
-.testimonial-author { display: flex; align-items: center; gap: var(--space-3); }
+/* Logic for spacing is now handled by .stack utility in HTML */
+.quote-text { font-size: var(--text-lg); line-height: 1.6; }
+
 .avatar { width: 48px; height: 48px; border-radius: 50%; overflow: hidden; flex-shrink: 0; background-color: var(--bg-alt); }
 .avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .author-name { font-weight: 600; font-size: var(--text-base); display: block; }
@@ -178,12 +147,9 @@ body {
 /* --- MOBILE NAVIGATION --- */
 @media (max-width: 768px) {
     .nav-toggle { display: block; background: none; border: none; cursor: pointer; padding: var(--space-2); }
-    .hamburger, .hamburger::before, .hamburger::after { 
-        display: block; width: 24px; height: 2px; background: var(--text-main); position: relative; content: '';
-    }
+    .hamburger, .hamburger::before, .hamburger::after { display: block; width: 24px; height: 2px; background: var(--text-main); position: relative; content: ''; }
     .hamburger::before { top: -8px; position: absolute; }
     .hamburger::after { bottom: -8px; position: absolute; }
-
     .nav-links {
         display: flex; flex-direction: column; position: absolute; top: 100%; left: 0; width: 100%;
         background: var(--bg-color); padding: 0 var(--space-7); border-bottom: 1px solid var(--border-light);
@@ -191,13 +157,7 @@ body {
         transition: max-height 0.25s ease-out, opacity 0.2s ease-out, transform 0.25s ease-out;
         transform: translateY(-8px);
     }
-
-    .nav-links.is-open {
-        max-height: 350px; opacity: 1; visibility: visible;
-        pointer-events: auto; transform: translateY(0); padding-bottom: var(--space-5);
-    }
-
+    .nav-links.is-open { max-height: 350px; opacity: 1; visibility: visible; pointer-events: auto; transform: translateY(0); padding-bottom: var(--space-5); }
     .nav-links a { margin: var(--space-3) 0; margin-left: 0; }
-    
     .btn { width: 100%; }
 }
