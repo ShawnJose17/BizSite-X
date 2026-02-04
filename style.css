@@ -1,4 +1,6 @@
-/* --- DESIGN TOKENS --- */
+/* ==========================================================================
+   DESIGN TOKENS
+   ========================================================================== */
 :root {
     --bg-color: #ffffff;
     --bg-alt: #f5f5f5;
@@ -18,6 +20,9 @@
 
     --section-padding: clamp(64px, 8vw, 140px);
 
+    /* RECTIFIED: Intent-based breakpoint token */
+    --md-viewport: 768px;
+
     --text-xs: 13px;
     --text-sm: 14px;
     --text-base: 16px;
@@ -31,42 +36,44 @@
     --radius: 4px;
 }
 
-/* --- RESET & BASE --- */
-* { margin: 0; padding: 0; box-sizing: border-box; }
+/* ==========================================================================
+   LAYOUT UTILITIES
+   Rules: Layout only. No visual styles.
+   ========================================================================== */
 
-body {
-    font-family: var(--font-main);
-    background-color: var(--bg-color);
-    color: var(--text-main);
-    line-height: 1.6;
-    font-size: var(--text-base);
-    -webkit-font-smoothing: antialiased;
-}
-
-/* --- DAY 9: LAYOUT UTILITY LAYER --- */
 .stack {
   display: flex;
   flex-direction: column;
-  gap: var(--space-3); /* Standard vertical rhythm */
+  justify-content: flex-start;
+  gap: var(--space-3); 
 }
 
 .cluster {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: var(--space-3); /* Standard horizontal alignment */
+  gap: var(--space-3);
 }
 
-.center {
+/* RECTIFIED: Utility modifier to avoid duplication in .site-header */
+.cluster--split {
+    justify-content: space-between;
+}
+
+/* RECTIFIED: Clarified name to avoid layout confusion */
+.text-center {
   text-align: center;
 }
 
-.container {
-    max-width: 1100px;
-    margin: 0 auto;
-    padding: 0 var(--space-5);
+/* RECTIFIED: Layout utility for handling button expansion on mobile */
+.full-width-mobile {
+    width: 100%;
 }
 
-/* --- SYSTEM PRIMITIVES --- */
+/* ==========================================================================
+   BASE COMPONENTS
+   Rules: Visuals only. Boundaries preserved.
+   ========================================================================== */
 
 .btn {
     display: inline-block;
@@ -78,8 +85,8 @@ body {
     cursor: pointer;
     transition: all var(--transition-speed) ease-in-out;
     text-align: center;
-    outline: none;
     text-decoration: none;
+    /* Boundary check: No layout context (width/margin) here */
 }
 
 .btn-primary { background-color: var(--accent-color); color: white; }
@@ -100,19 +107,54 @@ body {
 .service-card { padding: var(--space-6) var(--space-5); }
 .testimonial-card { padding: var(--space-6); }
 
-/* --- HEADER --- */
-.site-header { padding: var(--space-5) 0; position: relative; z-index: 1000; }
-.header-flex { display: flex; justify-content: space-between; align-items: center; }
+/* ==========================================================================
+   RESET & GLOBAL
+   ========================================================================== */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    font-family: var(--font-main);
+    background-color: var(--bg-color);
+    color: var(--text-main);
+    line-height: 1.6;
+    font-size: var(--text-base);
+    -webkit-font-smoothing: antialiased;
+}
+
+.container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 var(--space-5);
+}
+
+/* ==========================================================================
+   PAGE SECTIONS
+   ========================================================================== */
+
+/* Header */
+.site-header { 
+    padding: var(--space-5) 0; 
+    position: relative; 
+    z-index: 1000; 
+}
 .logo { font-size: var(--text-xl); font-weight: 700; letter-spacing: -0.5px; }
-.nav-links a { text-decoration: none; color: var(--text-main); font-size: var(--text-sm); font-weight: 500; margin-left: var(--space-5); transition: color var(--transition-speed); }
+
+.nav-links a { 
+    text-decoration: none; 
+    color: var(--text-main); 
+    font-size: var(--text-sm); 
+    font-weight: 500; 
+    margin-left: var(--space-5); 
+    transition: color var(--transition-speed); 
+}
 .nav-links a:hover { color: var(--accent-color); }
 
-/* --- SECTIONS --- */
+/* Hero */
+.hero { padding: var(--section-padding) 0; }
+.hero h1 { font-size: var(--text-3xl); font-weight: 700; line-height: 1.1; letter-spacing: -0.02em; }
+.hero p { font-size: var(--text-lg); color: var(--text-muted); max-width: 60ch; margin-inline: auto; }
 
-.hero { padding: var(--section-padding) 0; text-align: center; }
-.hero h1 { font-size: var(--text-3xl); font-weight: 700; margin-bottom: var(--space-4); letter-spacing: -0.02em; line-height: 1.1; }
-.hero p { font-size: var(--text-lg); color: var(--text-muted); margin-bottom: var(--space-5); max-width: 60ch; margin-inline: auto; }
-
+/* Grid Systems */
 .services-grid, 
 .testimonials-grid { 
     display: grid; 
@@ -120,36 +162,49 @@ body {
     gap: var(--space-5); 
 }
 
-.services { padding: var(--section-padding) 0; }
-.section-title { font-size: var(--text-2xl); font-weight: 700; margin-bottom: var(--space-7); text-align: center;}
+/* Section Common */
+.services, .testimonials, .cta { padding: var(--section-padding) 0; }
+.section-title { font-size: var(--text-2xl); font-weight: 700; margin-bottom: var(--space-7); }
 
-/* REFACTORED: Testimonial styles are now purely decorative/thematic */
-.testimonials { padding: var(--section-padding) 0; background-color: var(--bg-color); }
+/* Testimonials Semantic Refinement */
+.testimonials { background-color: var(--bg-color); }
 .testimonial-card:hover, .testimonial-card:focus-visible {
     border-color: var(--accent-color);
     box-shadow: 0 10px 30px -15px rgba(0, 0, 0, 0.05);
     outline: none;
 }
 
-/* Logic for spacing is now handled by .stack utility in HTML */
-.quote-text { font-size: var(--text-lg); line-height: 1.6; }
+/* RECTIFIED: Semantic gap management for metadata to replace inline style */
+.author-info {
+    gap: var(--space-1);
+}
 
+.quote-text { font-size: var(--text-lg); line-height: 1.6; }
 .avatar { width: 48px; height: 48px; border-radius: 50%; overflow: hidden; flex-shrink: 0; background-color: var(--bg-alt); }
 .avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .author-name { font-weight: 600; font-size: var(--text-base); display: block; }
 .author-role { font-size: var(--text-sm); color: var(--text-muted); }
 
-.cta { padding: var(--section-padding) 0; background-color: var(--bg-alt); text-align: center; }
-.cta h2 { font-size: var(--text-2xl); margin-bottom: var(--space-5); }
+/* CTA */
+.cta { background-color: var(--bg-alt); }
 
-.site-footer { padding: var(--space-7) 0; border-top: 1px solid var(--border-light); text-align: center; font-size: var(--text-xs); color: var(--text-muted); }
+/* Footer */
+.site-footer { padding: var(--space-7) 0; border-top: 1px solid var(--border-light); font-size: var(--text-xs); color: var(--text-muted); }
 
-/* --- MOBILE NAVIGATION --- */
+/* ==========================================================================
+   MOBILE NAVIGATION & SYSTEM LOCKDOWN
+   ========================================================================== */
 @media (max-width: 768px) {
+    /* RECTIFIED: Layout intent separated from button component */
+    .hero .btn, .cta .btn {
+        width: 100%;
+    }
+
     .nav-toggle { display: block; background: none; border: none; cursor: pointer; padding: var(--space-2); }
     .hamburger, .hamburger::before, .hamburger::after { display: block; width: 24px; height: 2px; background: var(--text-main); position: relative; content: ''; }
     .hamburger::before { top: -8px; position: absolute; }
     .hamburger::after { bottom: -8px; position: absolute; }
+    
     .nav-links {
         display: flex; flex-direction: column; position: absolute; top: 100%; left: 0; width: 100%;
         background: var(--bg-color); padding: 0 var(--space-7); border-bottom: 1px solid var(--border-light);
@@ -159,5 +214,4 @@ body {
     }
     .nav-links.is-open { max-height: 350px; opacity: 1; visibility: visible; pointer-events: auto; transform: translateY(0); padding-bottom: var(--space-5); }
     .nav-links a { margin: var(--space-3) 0; margin-left: 0; }
-    .btn { width: 100%; }
 }
