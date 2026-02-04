@@ -35,16 +35,14 @@
 }
 
 /* ==========================================================================
-   ACCESSIBILITY & INTERACTION (Day 11 Mandatory)
+   ACCESSIBILITY & INTERACTION
    ========================================================================== */
 
-/* Focus Visibility: Ensures clear affordance for keyboard users */
 :focus-visible {
     outline: 3px solid var(--accent-color);
     outline-offset: 4px;
 }
 
-/* Reduced Motion: Respecting OS-level accessibility settings */
 @media (prefers-reduced-motion: reduce) {
     *, ::before, ::after {
         animation-duration: 0.01ms !important;
@@ -52,6 +50,18 @@
         transition-duration: 0.01ms !important;
         scroll-behavior: auto !important;
     }
+}
+
+/* ==========================================================================
+   RENDERING OPTIMIZATION (Day 12)
+   ========================================================================== */
+
+/* Apply to sections not visible at First Contentful Paint */
+.services,
+.testimonials,
+.cta {
+    content-visibility: auto;
+    contain-intrinsic-size: 1px 500px;
 }
 
 /* ==========================================================================
@@ -80,7 +90,6 @@
   text-align: center;
 }
 
-/* RECTIFIED: Improved naming consistency from full-width-mobile */
 .flow-fill {
     width: 100%;
 }
@@ -177,8 +186,19 @@ body {
 
 .author-info { gap: var(--space-1); }
 .quote-text { font-size: var(--text-lg); line-height: 1.6; }
-.avatar { width: 48px; height: 48px; border-radius: 50%; overflow: hidden; flex-shrink: 0; background-color: var(--bg-alt); }
+
+/* RECTIFIED: Layout Stability rule */
+.avatar { 
+    width: 48px; 
+    height: 48px; 
+    aspect-ratio: 1 / 1;
+    border-radius: 50%; 
+    overflow: hidden; 
+    flex-shrink: 0; 
+    background-color: var(--bg-alt); 
+}
 .avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
 .author-name { font-weight: 600; font-size: var(--text-base); display: block; }
 .author-role { font-size: var(--text-sm); color: var(--text-muted); }
 
@@ -189,7 +209,6 @@ body {
    MOBILE NAVIGATION
    ========================================================================== */
 @media (max-width: 768px) {
-    /* Apply width intent only at breakpoint */
     .hero .btn, .cta .btn { width: 100%; }
 
     .nav-toggle { display: block; background: none; border: none; cursor: pointer; padding: var(--space-2); }
