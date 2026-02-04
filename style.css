@@ -19,8 +19,6 @@
     --space-7: 64px;
 
     --section-padding: clamp(64px, 8vw, 140px);
-
-    /* RECTIFIED: Intent-based breakpoint token */
     --md-viewport: 768px;
 
     --text-xs: 13px;
@@ -37,8 +35,27 @@
 }
 
 /* ==========================================================================
+   ACCESSIBILITY & INTERACTION (Day 11 Mandatory)
+   ========================================================================== */
+
+/* Focus Visibility: Ensures clear affordance for keyboard users */
+:focus-visible {
+    outline: 3px solid var(--accent-color);
+    outline-offset: 4px;
+}
+
+/* Reduced Motion: Respecting OS-level accessibility settings */
+@media (prefers-reduced-motion: reduce) {
+    *, ::before, ::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+/* ==========================================================================
    LAYOUT UTILITIES
-   Rules: Layout only. No visual styles.
    ========================================================================== */
 
 .stack {
@@ -55,24 +72,21 @@
   gap: var(--space-3);
 }
 
-/* RECTIFIED: Utility modifier to avoid duplication in .site-header */
 .cluster--split {
     justify-content: space-between;
 }
 
-/* RECTIFIED: Clarified name to avoid layout confusion */
 .text-center {
   text-align: center;
 }
 
-/* RECTIFIED: Layout utility for handling button expansion on mobile */
-.full-width-mobile {
+/* RECTIFIED: Improved naming consistency from full-width-mobile */
+.flow-fill {
     width: 100%;
 }
 
 /* ==========================================================================
    BASE COMPONENTS
-   Rules: Visuals only. Boundaries preserved.
    ========================================================================== */
 
 .btn {
@@ -83,19 +97,16 @@
     border-radius: var(--radius);
     border: none;
     cursor: pointer;
-    transition: all var(--transition-speed) ease-in-out;
+    transition: background var(--transition-speed) ease-in-out, box-shadow var(--transition-speed);
     text-align: center;
     text-decoration: none;
-    /* Boundary check: No layout context (width/margin) here */
 }
 
 .btn-primary { background-color: var(--accent-color); color: white; }
 .btn-primary:hover { background-color: var(--accent-dark); }
-.btn-primary:focus { box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.3); }
 
 .btn-dark { background-color: var(--text-main); color: white; }
 .btn-dark:hover { background-color: #333333; }
-.btn-dark:focus { box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.2); }
 
 .card {
     background-color: var(--bg-color);
@@ -131,12 +142,7 @@ body {
    PAGE SECTIONS
    ========================================================================== */
 
-/* Header */
-.site-header { 
-    padding: var(--space-5) 0; 
-    position: relative; 
-    z-index: 1000; 
-}
+.site-header { padding: var(--space-5) 0; position: relative; z-index: 1000; }
 .logo { font-size: var(--text-xl); font-weight: 700; letter-spacing: -0.5px; }
 
 .nav-links a { 
@@ -149,12 +155,10 @@ body {
 }
 .nav-links a:hover { color: var(--accent-color); }
 
-/* Hero */
 .hero { padding: var(--section-padding) 0; }
 .hero h1 { font-size: var(--text-3xl); font-weight: 700; line-height: 1.1; letter-spacing: -0.02em; }
 .hero p { font-size: var(--text-lg); color: var(--text-muted); max-width: 60ch; margin-inline: auto; }
 
-/* Grid Systems */
 .services-grid, 
 .testimonials-grid { 
     display: grid; 
@@ -162,43 +166,31 @@ body {
     gap: var(--space-5); 
 }
 
-/* Section Common */
 .services, .testimonials, .cta { padding: var(--section-padding) 0; }
 .section-title { font-size: var(--text-2xl); font-weight: 700; margin-bottom: var(--space-7); }
 
-/* Testimonials Semantic Refinement */
 .testimonials { background-color: var(--bg-color); }
-.testimonial-card:hover, .testimonial-card:focus-visible {
+.testimonial-card:hover {
     border-color: var(--accent-color);
     box-shadow: 0 10px 30px -15px rgba(0, 0, 0, 0.05);
-    outline: none;
 }
 
-/* RECTIFIED: Semantic gap management for metadata to replace inline style */
-.author-info {
-    gap: var(--space-1);
-}
-
+.author-info { gap: var(--space-1); }
 .quote-text { font-size: var(--text-lg); line-height: 1.6; }
 .avatar { width: 48px; height: 48px; border-radius: 50%; overflow: hidden; flex-shrink: 0; background-color: var(--bg-alt); }
 .avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .author-name { font-weight: 600; font-size: var(--text-base); display: block; }
 .author-role { font-size: var(--text-sm); color: var(--text-muted); }
 
-/* CTA */
 .cta { background-color: var(--bg-alt); }
-
-/* Footer */
 .site-footer { padding: var(--space-7) 0; border-top: 1px solid var(--border-light); font-size: var(--text-xs); color: var(--text-muted); }
 
 /* ==========================================================================
-   MOBILE NAVIGATION & SYSTEM LOCKDOWN
+   MOBILE NAVIGATION
    ========================================================================== */
 @media (max-width: 768px) {
-    /* RECTIFIED: Layout intent separated from button component */
-    .hero .btn, .cta .btn {
-        width: 100%;
-    }
+    /* Apply width intent only at breakpoint */
+    .hero .btn, .cta .btn { width: 100%; }
 
     .nav-toggle { display: block; background: none; border: none; cursor: pointer; padding: var(--space-2); }
     .hamburger, .hamburger::before, .hamburger::after { display: block; width: 24px; height: 2px; background: var(--text-main); position: relative; content: ''; }

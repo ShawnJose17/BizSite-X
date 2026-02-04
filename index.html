@@ -19,9 +19,10 @@
             class="nav-toggle"
             aria-label="Toggle navigation"
             aria-controls="primary-navigation"
+            aria-expanded="false"
             type="button"
         >
-            <span class="hamburger"></span>
+            <span class="hamburger" aria-hidden="true"></span>
         </button>
 
         <nav id="primary-navigation" class="nav-links">
@@ -32,10 +33,10 @@
     </div>
 </header>
 
-<main>
-    <section class="hero">
+<main id="main-content">
+    <section class="hero" aria-labelledby="hero-title">
         <div class="container hero-content stack text-center">
-            <h1>We help businesses build a strong digital presence.</h1>
+            <h1 id="hero-title">We help businesses build a strong digital presence.</h1>
             <p>Design. Development. Strategy.</p>
             <div>
                 <button class="btn btn-primary" type="button">Get in Touch</button>
@@ -43,22 +44,22 @@
         </div>
     </section>
 
-    <section class="services">
+    <section class="services" aria-labelledby="services-title">
         <div class="container">
-            <h2 class="section-title text-center">Our Services</h2>
+            <h2 id="services-title" class="section-title text-center">Our Services</h2>
             <div class="services-grid">
-                <div class="card service-card stack">
+                <article class="card service-card stack">
                     <h3>Web Design</h3>
                     <p>Clean, user-focused designs that communicate trust and clarity.</p>
-                </div>
-                <div class="card service-card stack">
+                </article>
+                <article class="card service-card stack">
                     <h3>Web Development</h3>
                     <p>Fast, scalable websites built with modern technologies.</p>
-                </div>
-                <div class="card service-card stack">
+                </article>
+                <article class="card service-card stack">
                     <h3>Digital Strategy</h3>
                     <p>Thoughtful planning to help your business grow online.</p>
-                </div>
+                </article>
             </div>
         </div>
     </section>
@@ -74,7 +75,7 @@
                     </p>
                     <footer class="testimonial-author cluster">
                         <div class="avatar">
-                            <img src="" alt="Sarah Jenkins" width="48" height="48">
+                            <img src="avatar1.jpg" alt="Sarah Jenkins" width="48" height="48">
                         </div>
                         <div class="author-info stack">
                             <cite class="author-name">Sarah Jenkins</cite>
@@ -89,7 +90,7 @@
                     </p>
                     <footer class="testimonial-author cluster">
                         <div class="avatar">
-                            <img src="" alt="David Chen" width="48" height="48">
+                            <img src="avatar2.jpg" alt="David Chen" width="48" height="48">
                         </div>
                         <div class="author-info stack">
                             <cite class="author-name">David Chen</cite>
@@ -104,7 +105,7 @@
                     </p>
                     <footer class="testimonial-author cluster">
                         <div class="avatar">
-                            <img src="" alt="Marcus Thorne" width="48" height="48">
+                            <img src="avatar3.jpg" alt="Marcus Thorne" width="48" height="48">
                         </div>
                         <div class="author-info stack">
                             <cite class="author-name">Marcus Thorne</cite>
@@ -116,9 +117,9 @@
         </div>
     </section>
 
-    <section class="cta">
+    <section class="cta" aria-labelledby="cta-title">
         <div class="container cta-content stack text-center">
-            <h2>Ready to elevate your digital presence?</h2>
+            <h2 id="cta-title">Ready to elevate your digital presence?</h2>
             <div>
                 <button class="btn btn-dark" type="button">Let’s Work Together</button>
             </div>
