@@ -10,129 +10,144 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
 </head>
 <body>
+    <a href="#main-content" class="skip-link">Skip to main content</a>
 
-<header class="site-header">
-    <div class="container cluster cluster--split">
-        <div class="logo">Asterra</div>
+    <header class="site-header">
+        <div class="container cluster cluster--split">
+            <p class="logo">
+                <a href="/">Asterra</a>
+            </p>
 
-        <button
-            class="nav-toggle"
-            aria-label="Toggle navigation"
-            aria-controls="primary-navigation"
-            aria-expanded="false"
-            type="button"
-        >
-            <span class="hamburger" aria-hidden="true"></span>
-        </button>
+            <button
+                class="nav-toggle"
+                aria-label="Toggle navigation"
+                aria-controls="primary-navigation"
+                aria-expanded="false"
+                type="button"
+            >
+                <span class="hamburger" aria-hidden="true"></span>
+            </button>
 
-        <nav id="primary-navigation" class="nav-links">
-            <a href="#">Home</a>
-            <a href="#">Services</a>
-            <a href="#">Contact</a>
-        </nav>
-    </div>
-</header>
-
-<main id="main-content">
-    <section class="hero" aria-labelledby="hero-title">
-        <div class="container hero-content stack text-center">
-            <h1 id="hero-title">We help businesses build a strong digital presence.</h1>
-            <p>Design. Development. Strategy.</p>
-            <div>
-                <button class="btn btn-primary" type="button">Get in Touch</button>
-            </div>
+            <nav id="primary-navigation" class="nav-links" aria-label="Main Navigation">
+                <ul class="cluster">
+                    <li><a href="#">Home</a></li>
+                    <li><a href="#">Services</a></li>
+                    <li><a href="#">Contact</a></li>
+                </ul>
+            </nav>
         </div>
-    </section>
+    </header>
 
-    <section class="services" aria-labelledby="services-title">
+    <main id="main-content" tabindex="-1">
+        <section class="hero">
+            <div class="container hero-content stack text-center">
+                <h1>We help businesses build a strong digital presence.</h1>
+                <p>Design. Development. Strategy.</p>
+                <div>
+                    <button class="btn btn-primary" type="button">Get in Touch</button>
+                </div>
+            </div>
+        </section>
+
+        <section class="services">
+            <div class="container">
+                <header class="section-intro text-center">
+                    <h2 class="section-title">Our Services</h2>
+                </header>
+                <div class="services-grid">
+                    <article class="card service-card stack">
+                        <h3>Web Design</h3>
+                        <p>Clean, user-focused designs that communicate trust and clarity.</p>
+                    </article>
+                    <article class="card service-card stack">
+                        <h3>Web Development</h3>
+                        <p>Fast, scalable websites built with modern technologies.</p>
+                    </article>
+                    <article class="card service-card stack">
+                        <h3>Digital Strategy</h3>
+                        <p>Thoughtful planning to help your business grow online.</p>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <section class="testimonials">
+            <div class="container">
+                <header class="section-intro text-center">
+                    <h2 class="section-title">Client Perspectives</h2>
+                </header>
+                
+                <div class="testimonials-grid">
+                    <article class="card testimonial-card stack">
+                        <blockquote class="stack">
+                            <p class="quote-text">
+                                “Asterra Solutions transformed our digital workflow. Their strategic approach to development is exactly what our scaling startup needed.”
+                            </p>
+                            <footer class="testimonial-author cluster">
+                                <div class="avatar">
+                                    <img src="avatar1.jpg" alt="Sarah Jenkins" width="48" height="48">
+                                </div>
+                                <div class="author-info stack">
+                                    <cite class="author-name">Sarah Jenkins</cite>
+                                    <span class="author-role">COO, Nexus Tech</span>
+                                </div>
+                            </footer>
+                        </blockquote>
+                    </article>
+
+                    <article class="card testimonial-card stack">
+                        <blockquote class="stack">
+                            <p class="quote-text">
+                                “A rare combination of high-level design and technical rigor. They don't just build websites; they build digital assets that drive results.”
+                            </p>
+                            <footer class="testimonial-author cluster">
+                                <div class="avatar">
+                                    <img src="avatar2.jpg" alt="David Chen" width="48" height="48">
+                                </div>
+                                <div class="author-info stack">
+                                    <cite class="author-name">David Chen</cite>
+                                    <span class="author-role">Founder, Horizon Retail</span>
+                                </div>
+                            </footer>
+                        </blockquote>
+                    </article>
+
+                    <article class="card testimonial-card stack">
+                        <blockquote class="stack">
+                            <p class="quote-text">
+                                “Professional, transparent, and incredibly thorough. The clarity of their process gave us total confidence from day one.”
+                            </p>
+                            <footer class="testimonial-author cluster">
+                                <div class="avatar">
+                                    <img src="avatar3.jpg" alt="Marcus Thorne" width="48" height="48">
+                                </div>
+                                <div class="author-info stack">
+                                    <cite class="author-name">Marcus Thorne</cite>
+                                    <span class="author-role">Director, Thorne Associates</span>
+                                </div>
+                            </footer>
+                        </blockquote>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <section class="cta">
+            <div class="container cta-content stack text-center">
+                <h2>Ready to elevate your digital presence?</h2>
+                <div>
+                    <button class="btn btn-dark" type="button">Let’s Work Together</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="site-footer">
         <div class="container">
-            <h2 id="services-title" class="section-title text-center">Our Services</h2>
-            <div class="services-grid">
-                <article class="card service-card stack">
-                    <h3>Web Design</h3>
-                    <p>Clean, user-focused designs that communicate trust and clarity.</p>
-                </article>
-                <article class="card service-card stack">
-                    <h3>Web Development</h3>
-                    <p>Fast, scalable websites built with modern technologies.</p>
-                </article>
-                <article class="card service-card stack">
-                    <h3>Digital Strategy</h3>
-                    <p>Thoughtful planning to help your business grow online.</p>
-                </article>
-            </div>
+            <p class="text-center">&copy; 2026 Asterra Solutions. All rights reserved.</p>
         </div>
-    </section>
+    </footer>
 
-    <section class="testimonials" aria-labelledby="testimonials-title">
-        <div class="container">
-            <h2 id="testimonials-title" class="section-title text-center">Client Perspectives</h2>
-            
-            <div class="testimonials-grid">
-                <blockquote class="card testimonial-card stack">
-                    <p class="quote-text">
-                        “Asterra Solutions transformed our digital workflow. Their strategic approach to development is exactly what our scaling startup needed.”
-                    </p>
-                    <footer class="testimonial-author cluster">
-                        <div class="avatar">
-                            <img src="avatar1.jpg" alt="Sarah Jenkins" width="48" height="48">
-                        </div>
-                        <div class="author-info stack">
-                            <cite class="author-name">Sarah Jenkins</cite>
-                            <span class="author-role">COO, Nexus Tech</span>
-                        </div>
-                    </footer>
-                </blockquote>
-
-                <blockquote class="card testimonial-card stack">
-                    <p class="quote-text">
-                        “A rare combination of high-level design and technical rigor. They don't just build websites; they build digital assets that drive results.”
-                    </p>
-                    <footer class="testimonial-author cluster">
-                        <div class="avatar">
-                            <img src="avatar2.jpg" alt="David Chen" width="48" height="48">
-                        </div>
-                        <div class="author-info stack">
-                            <cite class="author-name">David Chen</cite>
-                            <span class="author-role">Founder, Horizon Retail</span>
-                        </div>
-                    </footer>
-                </blockquote>
-
-                <blockquote class="card testimonial-card stack">
-                    <p class="quote-text">
-                        “Professional, transparent, and incredibly thorough. The clarity of their process gave us total confidence from day one.”
-                    </p>
-                    <footer class="testimonial-author cluster">
-                        <div class="avatar">
-                            <img src="avatar3.jpg" alt="Marcus Thorne" width="48" height="48">
-                        </div>
-                        <div class="author-info stack">
-                            <cite class="author-name">Marcus Thorne</cite>
-                            <span class="author-role">Director, Thorne Associates</span>
-                        </div>
-                    </footer>
-                </blockquote>
-            </div>
-        </div>
-    </section>
-
-    <section class="cta" aria-labelledby="cta-title">
-        <div class="container cta-content stack text-center">
-            <h2 id="cta-title">Ready to elevate your digital presence?</h2>
-            <div>
-                <button class="btn btn-dark" type="button">Let’s Work Together</button>
-            </div>
-        </div>
-    </section>
-</main>
-
-<footer class="site-footer">
-    <div class="container">
-        <p class="text-center">&copy; 2026 Asterra Solutions. All rights reserved.</p>
-    </div>
-</footer>
-
-<script src="script.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
