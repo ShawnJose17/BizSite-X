@@ -1,75 +1,124 @@
 /**
- * Navigation State Management (Day 14 Architecture)
- * * UI INVARIANTS:
- * 1. Single Source of Truth: 'isMenuOpen' variable defines the state.
- * 2. State-to-DOM Sync: The DOM must never be checked to infer state.
- * 3. Scroll Lock: If menu is open, body scroll must be disabled.
- * 4. Event Hygiene: Global listeners (Escape key) must only be active when menu is open.
+ * Navigation Finite State Machine (Day 15 Architecture)
+ * * ARCHITECTURAL INVARIANTS:
+ * 1. Determinism: The UI can only exist in one of four explicit states.
+ * 2. Transition Validity: State mutations only occur if the transition is legal.
+ * 3. Temporal Integrity: Animation timers are managed to prevent race conditions.
+ * 4. DOM Derivation: The DOM is a pure function of the FSM state.
  */
 
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. Single Source of Truth
-    // Reality is defined here. The DOM mirrors this variable.
-    let isMenuOpen = false;
+    // 1. Vocabulary Definition
+    const MENU_STATES = {
+        CLOSED: 'closed',
+        OPENING: 'opening',
+        OPEN: 'open',
+        CLOSING: 'closing'
+    };
+
+    // 2. State Authority
+    let currentMenuState = MENU_STATES.CLOSED;
+    let transitionTimer = null; // Reference to manage temporal race conditions
 
     const navToggle = document.querySelector('.nav-toggle');
     const navLinks = document.querySelector('.nav-links');
     const links = navLinks ? navLinks.querySelectorAll('a') : [];
 
     /**
-     * Synchronization Layer (Renderer)
-     * Derived from the "Single Source of Truth." Ensures the DOM 
-     * stays in sync with 'isMenuOpen'.
+     * Legal Transition Map
+     * Key: Current State | Value: Array of allowed Next States
      */
-    const renderMenuState = () => {
-        // Apply visual state
-        navLinks.classList.toggle('is-open', isMenuOpen);
-        
-        // Apply accessibility state
-        navToggle.setAttribute('aria-expanded', isMenuOpen.toString());
-        
-        // Enforce Scroll Lock invariant
-        document.body.style.overflow = isMenuOpen ? 'hidden' : '';
+    const LEGAL_TRANSITIONS = {
+        [MENU_STATES.CLOSED]: [MENU_STATES.OPENING],
+        [MENU_STATES.OPENING]: [MENU_STATES.OPEN],
+        [MENU_STATES.OPEN]: [MENU_STATES.CLOSING],
+        [MENU_STATES.CLOSING]: [MENU_STATES.CLOSED]
+    };
 
-        // Manage Global Event Listeners
-        // We add/remove the listener based on state to prevent "event pollution."
-        // In large apps, this prevents hundreds of keydown checks when the menu is closed.
-        if (isMenuOpen) {
-            document.addEventListener('keydown', handleEscapeKey);
+    /**
+     * Renderer
+     * Purely derives DOM attributes and side effects from currentMenuState.
+     */
+    const render = () => {
+        const isOpenSemantic = currentMenuState === MENU_STATES.OPEN || currentMenuState === MENU_STATES.OPENING;
+        const isTransitioning = currentMenuState === MENU_STATES.OPENING || currentMenuState === MENU_STATES.CLOSING;
+
+        // Visual Class: Keep .is-open active during the entire open/opening/closing lifecycle
+        // Only remove it when definitively CLOSED.
+        navLinks.classList.toggle('is-open', currentMenuState !== MENU_STATES.CLOSED);
+        
+        // Accessibility: Reflect semantic intent
+        navToggle.setAttribute('aria-expanded', isOpenSemantic.toString());
+        
+        // Invariant: Scroll lock active during any non-closed state
+        document.body.style.overflow = (currentMenuState !== MENU_STATES.CLOSED) ? 'hidden' : '';
+
+        // Global Key Listener Management
+        if (currentMenuState === MENU_STATES.OPEN) {
+            document.addEventListener('keydown', handleEscape);
         } else {
-            document.removeEventListener('keydown', handleEscapeKey);
+            document.removeEventListener('keydown', handleEscape);
         }
     };
 
     /**
-     * State Mutation Layer
-     * The only way to change the UI is through this function.
+     * State Transition Manager
+     * Validates legality and handles temporal logic (timers).
      */
-    const setMenuState = (newState) => {
-        if (isMenuOpen === newState) return; // Prevent unnecessary DOM thrashing
-        isMenuOpen = newState;
-        renderMenuState();
+    const transitionTo = (nextState) => {
+        const allowed = LEGAL_TRANSITIONS[currentMenuState].includes(nextState);
+
+        if (!allowed) {
+            console.warn(`Illegal transition attempted: ${currentMenuState} -> ${nextState}`);
+            return;
+        }
+
+        // Clear any existing timers to prevent overlapping state mutations (Race Conditions)
+        if (transitionTimer) clearTimeout(transitionTimer);
+
+        currentMenuState = nextState;
+        render();
+
+        // Handle Temporal States
+        if (currentMenuState === MENU_STATES.OPENING) {
+            transitionTimer = setTimeout(() => transitionTo(MENU_STATES.OPEN), 300);
+        } else if (currentMenuState === MENU_STATES.CLOSING) {
+            transitionTimer = setTimeout(() => transitionTo(MENU_STATES.CLOSED), 300);
+        }
     };
 
     /**
-     * Event Handlers
+     * Action Handlers
+     * Actions do not mutate state; they request transitions.
      */
-    const handleEscapeKey = (e) => {
+    const handleToggle = () => {
+        if (currentMenuState === MENU_STATES.CLOSED) {
+            transitionTo(MENU_STATES.OPENING);
+        } else if (currentMenuState === MENU_STATES.OPEN) {
+            transitionTo(MENU_STATES.CLOSING);
+        }
+        // Transitions during 'opening' or 'closing' are ignored by the FSM logic
+    };
+
+    const handleEscape = (e) => {
         if (e.key === 'Escape') {
-            setMenuState(false);
+            transitionTo(MENU_STATES.CLOSING);
             navToggle.focus();
         }
     };
 
-    if (navToggle && navLinks) {
-        navToggle.addEventListener('click', () => {
-            setMenuState(!isMenuOpen);
-        });
+    const handleLinkClick = () => {
+        if (currentMenuState === MENU_STATES.OPEN) {
+            transitionTo(MENU_STATES.CLOSING);
+        }
+    };
 
-        links.forEach(link => {
-            link.addEventListener('click', () => {
-                setMenuState(false);
-            });
-        });
+    // 3. Bindings
+    if (navToggle && navLinks) {
+        navToggle.addEventListener('click', handleToggle);
+        links.forEach(link => link.addEventListener('click', handleLinkClick));
     }
+
+    // Initial Render
+    render();
 });
