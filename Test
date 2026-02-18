@@ -1,0 +1,15 @@
+fetch("http://localhost:3000/contact", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify({
+    name: "Shawn",
+    email: "test@test.com",
+    message: "Frontend test"
+  })
+})
+.then(res => res.json())
+.then(data => console.log(data))
+.catch(err => console.error(err));
+
