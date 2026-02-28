@@ -7,8 +7,16 @@ const rateLimit = require("express-rate-limit");
 
 const contactRoutes = require("./routes/contactRoutes");
 const adminRoutes = require("./routes/adminRoutes");
+const errorHandler = require("./middleware/errorHandler");
+
+const cors = require("cors");
 
 const app = express();
+
+// Trust proxy (important for correct IP detection behind proxies)
+app.set("trust proxy", 1);
+
+app.use(cors());
 
 // Security headers
 app.use(helmet());
@@ -31,6 +39,9 @@ app.use(express.static(path.join(__dirname, "public")));
 // Routes
 app.use("/contact", contactRoutes);
 app.use("/admin", adminRoutes);
+
+// Centralized error handler (MUST BE LAST)
+app.use(errorHandler);
 
 const PORT = process.env.PORT || 3000;
 
