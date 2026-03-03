@@ -17,3 +17,25 @@ export const loginAdmin = async (data) => {
 
   return result;
 };
+
+export const getDashboardData = async () => {
+  const token = localStorage.getItem("token");
+
+  if (!token) {
+    throw new Error("No token found");
+  }
+
+  const res = await fetch(`${API_BASE}/admin/dashboard-data`, {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  });
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    throw new Error(data.error || "Failed to fetch dashboard data");
+  }
+
+  return data;
+};

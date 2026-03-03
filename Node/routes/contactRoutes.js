@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const { submitContact, getContacts } = require("../controllers/contactController");
-const protect = require("../middleware/authMiddleware");
+const { protect } = require("../middleware/authMiddleware");
 
 // Public route
 router.post("/", submitContact);
