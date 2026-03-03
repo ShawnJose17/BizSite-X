@@ -18,8 +18,8 @@ function AdminLogin() {
 
     try {
       const data = await loginAdmin(form);
-      console.log("TOKEN:", data.token);
-      alert("Login successful");
+      localStorage.setItem("token", data.token);
+      window.location.href = "/dashboard";
     } catch (err) {
       setError(err.message);
     }
