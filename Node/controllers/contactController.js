@@ -33,3 +33,48 @@ exports.getContacts = async (req, res, next) => {
     next(error);
   }
 };
+
+exports.deleteContact = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    const [result] = await db.execute(
+      "DELETE FROM contacts WHERE id = ?",
+      [id]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: "Contact not found" });
+    }
+
+    res.json({ message: "Contact deleted successfully" });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.toggleReadStatus = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    const [rows] = await db.execute(
+      "SELECT is_read FROM contacts WHERE id = ?",
+      [id]
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).json({ error: "Contact not found" });
+    }
+
+    const newStatus = !rows[0].is_read;
+
+    await db.execute(
+      "UPDATE contacts SET is_read = ? WHERE id = ?",
+      [newStatus, id]
+    );
+
+    res.json({ message: "Status updated", is_read: newStatus });
+  } catch (error) {
+    next(error);
+  }
+};

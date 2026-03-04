@@ -39,3 +39,25 @@ export const getDashboardData = async () => {
 
   return data;
 };
+
+export const getContacts = async () => {
+  const token = localStorage.getItem("token");
+
+  if (!token) {
+    throw new Error("No token found");
+  }
+
+  const res = await fetch("http://localhost:3000/contact", {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  });
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    throw new Error(data.error || "Failed to fetch contacts");
+  }
+
+  return data;
+};
