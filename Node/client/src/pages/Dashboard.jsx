@@ -19,65 +19,39 @@ function Dashboard() {
       });
   }, []);
 
-  const handleDelete = async (id) => {
-    const confirmed = window.confirm(
-      "Are you sure you want to delete this message?"
-    );
-    if (!confirmed) return;
-
-    try {
-      const token = localStorage.getItem("token");
-
-      const res = await fetch(`http://localhost:3000/contact/${id}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      });
-
-      if (!res.ok) {
-        throw new Error("Delete failed");
-      }
-
-      setContacts((prev) => prev.filter((c) => c.id !== id));
-    } catch (err) {
-      alert("Something went wrong while deleting.");
-    }
-  };
-
   const handleLogout = () => {
     localStorage.removeItem("token");
     window.location.href = "/";
   };
 
-  const handleToggleRead = async (id) => {
-    try {
-      const token = localStorage.getItem("token");
+  const handleDelete = async (id) => {
+    const token = localStorage.getItem("token");
 
-      const res = await fetch(
-        `http://localhost:3000/contact/${id}/read`,
-        {
-          method: "PATCH",
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        }
-      );
-
-      if (!res.ok) {
-        throw new Error("Failed to update status");
+    await fetch(`http://localhost:3000/contact/${id}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`
       }
+    });
 
-      const data = await res.json();
+    setContacts((prev) => prev.filter((c) => c.id !== id));
+  };
 
-      setContacts((prev) =>
-        prev.map((c) =>
-          c.id === id ? { ...c, is_read: data.is_read } : c
-        )
-      );
-    } catch (err) {
-      alert("Failed to update read status.");
-    }
+  const handleToggleRead = async (id) => {
+    const token = localStorage.getItem("token");
+
+    await fetch(`http://localhost:3000/contact/${id}/toggle`, {
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+
+    setContacts((prev) =>
+      prev.map((c) =>
+        c.id === id ? { ...c, is_read: !c.is_read } : c
+      )
+    );
   };
 
   const filteredContacts = contacts.filter((contact) => {
@@ -87,151 +61,256 @@ function Dashboard() {
   });
 
   const sortedContacts = [...filteredContacts].sort((a, b) => {
-    if (sortBy === "newest") {
+    if (sortBy === "newest")
       return new Date(b.created_at) - new Date(a.created_at);
-    }
-    if (sortBy === "oldest") {
+    if (sortBy === "oldest")
       return new Date(a.created_at) - new Date(b.created_at);
-    }
-    if (sortBy === "name") {
+    if (sortBy === "name")
       return a.name.localeCompare(b.name);
-    }
     return 0;
   });
 
   return (
-    <div style={{ padding: "40px" }}>
-      <h2>Admin Dashboard</h2>
+    <div style={layoutStyle}>
+      {/* Sidebar */}
+      <div style={sidebarStyle}>
+        <h2 style={{ marginBottom: "30px" }}>Asterra</h2>
 
-      <button
-        onClick={handleLogout}
-        style={{
-          marginBottom: "20px",
-          padding: "8px 16px",
-          cursor: "pointer"
-        }}
-      >
-        Logout
-      </button>
-      
-      <div style={{ marginBottom: "20px" }}>
-        <button onClick={() => setFilter("all")} style={{ marginRight: "10px" }}>
+        <button
+          onClick={() => setFilter("all")}
+          style={{
+            ...sidebarButton,
+            backgroundColor: filter === "all" ? "#2563eb" : "transparent",
+            color: filter === "all" ? "white" : "#1a1a1a"
+          }}
+        >
           All ({contacts.length})
         </button>
 
-        <button onClick={() => setFilter("unread")} style={{ marginRight: "10px" }}>
+        <button
+          onClick={() => setFilter("unread")}
+          style={{
+            ...sidebarButton,
+            backgroundColor: filter === "unread" ? "#2563eb" : "transparent",
+            color: filter === "unread" ? "white" : "#1a1a1a"
+          }}
+        >
           Unread ({contacts.filter(c => !c.is_read).length})
         </button>
 
-        <button onClick={() => setFilter("read")}>
+        <button
+          onClick={() => setFilter("read")}
+          style={{
+            ...sidebarButton,
+            backgroundColor: filter === "read" ? "#2563eb" : "transparent",
+            color: filter === "read" ? "white" : "#1a1a1a"
+          }}
+        >
           Read ({contacts.filter(c => c.is_read).length})
         </button>
+
+        <div style={{ marginTop: "auto" }}>
+          <button onClick={handleLogout} style={logoutButton}>
+            Logout
+          </button>
+        </div>
       </div>
 
-      <div style={{ marginBottom: "20px" }}>
-        <label style={{ marginRight: "10px" }}>Sort:</label>
+      {/* Main Content */}
+      <div style={mainContentStyle}>
+        <h1 style={{ marginBottom: "25px" }}>Messages</h1>
 
-        <select
-          value={sortBy}
-          onChange={(e) => setSortBy(e.target.value)}
-        >
-          <option value="newest">Newest First</option>
-          <option value="oldest">Oldest First</option>
-          <option value="name">Name (A-Z)</option>
-        </select>
-      </div>
+        {/* Modern Sort Controls */}
+        <div style={sortContainer}>
+          <span style={{ fontWeight: "500" }}>Sort by:</span>
 
-      {loading ? (
-        <p>Loading contacts...</p>
-      ) : contacts.length === 0 ? (
-        <p>No contact messages found.</p>
-      ) : (
-        <div style={{ overflowX: "auto" }}>
-          <table
-            style={{
-              width: "100%",
-              borderCollapse: "collapse",
-              minWidth: "800px"
-            }}
-          >
-            <thead>
-              <tr>
-                <th style={thStyle}>ID</th>
-                <th style={thStyle}>Name</th>
-                <th style={thStyle}>Email</th>
-                <th style={thStyle}>Message</th>
-                <th style={thStyle}>IP</th>
-                <th style={thStyle}>Created</th>
-                <th style={thStyle}>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {sortedContacts.map((contact) => (
-                <tr
-                  key={contact.id}
-                  style={{
-                    backgroundColor: contact.is_read ? "#fff" : "#f0f8ff",
-                    fontWeight: contact.is_read ? "normal" : "bold"
-                  }}
-                >
-                  <td style={tdStyle}>{contact.id}</td>
-                  <td style={tdStyle}>{contact.name}</td>
-                  <td style={tdStyle}>{contact.email}</td>
-                  <td
+          {["newest", "oldest", "name"].map((type) => (
+            <button
+              key={type}
+              onClick={() => setSortBy(type)}
+              style={{
+                ...sortButton,
+                backgroundColor:
+                  sortBy === type ? "#2563eb" : "#e5e7eb",
+                color: sortBy === type ? "white" : "#1a1a1a"
+              }}
+            >
+              {type === "newest" && "Newest"}
+              {type === "oldest" && "Oldest"}
+              {type === "name" && "Name A-Z"}
+            </button>
+          ))}
+        </div>
+
+        {loading ? (
+          <p>Loading...</p>
+        ) : (
+          <div style={cardContainer}>
+            {sortedContacts.map((contact) => (
+              <div
+                key={contact.id}
+                style={{
+                  ...cardStyle,
+                  borderLeft: contact.is_read
+                    ? "4px solid #e5e7eb"
+                    : "4px solid #2563eb",
+                  backgroundColor: contact.is_read
+                    ? "#ffffff"
+                    : "#f0f7ff"
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = "translateY(-4px)";
+                  e.currentTarget.style.boxShadow =
+                    "0 8px 20px rgba(0,0,0,0.08)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = "translateY(0px)";
+                  e.currentTarget.style.boxShadow =
+                    "0 2px 8px rgba(0,0,0,0.04)";
+                }}
+              >
+                <h3>{contact.name}</h3>
+                <p style={{ color: "#666" }}>{contact.email}</p>
+                <p style={{ marginTop: "10px" }}>{contact.message}</p>
+
+                {/* Action Buttons */}
+                <div style={actionContainer}>
+                  <button
+                    onClick={() => handleToggleRead(contact.id)}
                     style={{
-                      ...tdStyle,
-                      maxWidth: "300px",
-                      wordBreak: "break-word"
+                      ...actionButton,
+                      backgroundColor: contact.is_read
+                        ? "#f59e0b"
+                        : "#10b981"
                     }}
                   >
-                    {contact.message}
-                  </td>
-                  <td style={tdStyle}>{contact.ip_address}</td>
-                  <td style={tdStyle}>
-                    {new Date(contact.created_at).toLocaleString()}
-                  </td>
-                  <td style={tdStyle}>
-                    <button
-                      onClick={() => handleToggleRead(contact.id)}
-                      style={{
-                        marginRight: "8px",
-                        padding: "6px 12px",
-                        cursor: "pointer"
-                      }}
-                    >
-                      {contact.is_read ? "Mark Unread" : "Mark Read"}
-                    </button>
-                    
-                    <button
-                      onClick={() => handleDelete(contact.id)}
-                      style={{
-                        padding: "6px 12px",
-                        cursor: "pointer"
-                      }}
-                    >
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+                    {contact.is_read ? "Mark Unread" : "Mark Read"}
+                  </button>
+
+                  <button
+                    onClick={() => handleDelete(contact.id)}
+                    style={{
+                      ...actionButton,
+                      backgroundColor: "#ef4444"
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.opacity = "0.85";
+                      e.currentTarget.style.transform = "scale(1.05)";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.opacity = "1";
+                      e.currentTarget.style.transform = "scale(1)";
+                    }}
+                  >
+                    Delete
+                  </button>
+                </div>
+
+                <small style={dateStyle}>
+                  {new Date(contact.created_at).toLocaleString()}
+                </small>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
 
-const thStyle = {
-  border: "1px solid #ccc",
-  padding: "10px",
-  backgroundColor: "#f5f5f5",
-  textAlign: "left"
+/* Layout */
+
+const layoutStyle = {
+  display: "flex",
+  height: "100vh",
+  fontFamily: "'Inter', sans-serif"
 };
 
-const tdStyle = {
-  border: "1px solid #ccc",
-  padding: "10px"
+const sidebarStyle = {
+  width: "240px",
+  backgroundColor: "#f9fafb",
+  borderRight: "1px solid #e5e7eb",
+  padding: "30px",
+  display: "flex",
+  flexDirection: "column"
+};
+
+const sidebarButton = {
+  marginBottom: "10px",
+  padding: "10px",
+  border: "none",
+  cursor: "pointer",
+  textAlign: "left",
+  borderRadius: "6px"
+};
+
+const logoutButton = {
+  padding: "10px",
+  backgroundColor: "#111827",
+  color: "white",
+  border: "none",
+  cursor: "pointer",
+  width: "100%",
+  borderRadius: "6px"
+};
+
+const mainContentStyle = {
+  flex: 1,
+  padding: "40px",
+  backgroundColor: "#ffffff",
+  overflowY: "auto"
+};
+
+const sortContainer = {
+  marginBottom: "30px",
+  display: "flex",
+  alignItems: "center",
+  gap: "15px"
+};
+
+const sortButton = {
+  padding: "8px 16px",
+  borderRadius: "20px",
+  border: "none",
+  cursor: "pointer",
+  transition: "all 0.2s ease",
+  fontWeight: "500"
+};
+
+const cardContainer = {
+  display: "grid",
+  gap: "20px"
+};
+
+const cardStyle = {
+  padding: "22px",
+  borderRadius: "10px",
+  border: "1px solid #e5e7eb",
+  transition: "all 0.25s ease",
+  boxShadow: "0 2px 8px rgba(0,0,0,0.04)"
+};
+
+const actionContainer = {
+  marginTop: "15px",
+  display: "flex",
+  gap: "10px"
+};
+
+const actionButton = {
+  padding: "7px 14px",
+  borderRadius: "6px",
+  border: "none",
+  cursor: "pointer",
+  color: "white",
+  transition: "all 0.2s ease",
+  fontWeight: "500"
+};
+
+const dateStyle = {
+  display: "block",
+  marginTop: "10px",
+  fontSize: "12px",
+  color: "#888"
 };
 
 export default Dashboard;
