@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { getContacts } from "../services/api";
+import * as S from "../styles/dashboardStyles";
 
 function Dashboard() {
   const [contacts, setContacts] = useState([]);
@@ -57,7 +58,7 @@ function Dashboard() {
   const handleToggleRead = async (id) => {
     const token = localStorage.getItem("token");
 
-    await fetch(`http://localhost:3000/contact/${id}/toggle`, {
+    await fetch(`http://localhost:3000/contact/${id}/read`, {
       method: "PATCH",
       headers: { Authorization: `Bearer ${token}` }
     });
@@ -86,10 +87,10 @@ function Dashboard() {
   });
 
   return (
-    <div style={layoutStyle}>
+    <div style={S.layout}>
       {/* Sidebar */}
-      <div style={sidebarStyle}>
-        <h2 style={{ marginBottom: "30px" }}>Asterra</h2>
+      <div style={S.sidebar}>
+        <h2 style={S.sidebarTitle}>Asterra</h2>
 
         {["all", "unread", "read"].map((type) => (
           <button
@@ -140,7 +141,14 @@ function Dashboard() {
 
       {/* Main */}
       <div style={mainContentStyle}>
-        <h1 style={{ marginBottom: "25px" }}>Messages</h1>
+        <div style={{ marginBottom: "30px" }}>
+          <h1 style={{ fontSize: "28px", marginBottom: "5px" }}>
+            Dashboard
+          </h1>
+          <p style={{ color: "#666" }}>
+            Manage incoming messages and client inquiries
+          </p>
+        </div>
 
         {/* Sort */}
         <div style={sortContainer}>
@@ -189,7 +197,7 @@ function Dashboard() {
               <div
                 key={contact.id}
                 style={{
-                  ...cardStyle,
+                  ...S.card,
                   borderLeft: contact.is_read
                     ? "4px solid #e5e7eb"
                     : "4px solid #2563eb",
@@ -224,7 +232,7 @@ function Dashboard() {
                       handleToggleRead(contact.id)
                     }
                     style={{
-                      ...actionButton,
+                      ...S.buttonPrimary,
                       backgroundColor: contact.is_read
                         ? "#f59e0b"
                         : "#10b981"
@@ -252,10 +260,7 @@ function Dashboard() {
                       setSelectedId(contact.id);
                       setDeleteModal(true);
                     }}
-                    style={{
-                      ...actionButton,
-                      backgroundColor: "#ef4444"
-                    }}
+                    style={S.buttonDanger}
                     onMouseEnter={(e) => {
                       e.currentTarget.style.transform =
                         "scale(1.05)";
