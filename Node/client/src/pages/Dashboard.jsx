@@ -69,7 +69,7 @@ function Dashboard() {
       setContacts((prev) => prev.filter((c) => c.id !== selectedId));
 
       setDeleteModal(false);
-      setToast("Message deleted");
+      setToast("Message Deleted");
 
       setTimeout(() => setToast(""), 3000);
     } catch (err) {
@@ -156,10 +156,18 @@ function Dashboard() {
           
           <input 
             type="text" 
-            placeholder="Search messages..." 
+            placeholder="Search messages" 
             style={S.searchInput}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
+            onFocus={(e) => {
+              e.target.style.border = "1px solid #2563eb";
+              e.target.style.boxShadow = "0 0 0 3px rgba(37, 99, 235, 0.15)";
+            }}
+            onBlur={(e) => {
+              e.target.style.border = "1px solid rgba(0,0,0,0.08)";
+              e.target.style.boxShadow = "none";
+            }}
           />
         </header>
 
@@ -381,7 +389,64 @@ function Dashboard() {
         from { transform: scale(0.95); opacity: 0; }
         to { transform: scale(1); opacity: 1; }
       }
-      `}</style>
+      `}
+      </style>
+
+      <style>{`
+        .form-toast {
+          position: fixed;
+          top: 30px;
+          left: 50%;
+          transform: translateX(-50%) translateY(-100px);
+          padding: 16px 24px;
+          border-radius: 50px;
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          font-weight: 600;
+          z-index: 99999;
+          opacity: 0;
+          transition: transform 0.5s cubic-bezier(0.175,0.885,0.32,1.275), opacity 0.3s;
+        }
+
+        .form-toast.show {
+          opacity: 1;
+          transform: translateX(-50%) translateY(0);
+        }
+
+        .form-toast.success {
+          background: #10b981;
+          color: #fff;
+          box-shadow: 0 10px 25px rgba(16,185,129,0.3);
+        }
+
+        .form-toast.error {
+          background: #ef4444;
+          color: #fff;
+          box-shadow: 0 10px 25px rgba(239,68,68,0.3);
+        }
+
+        .toast-icon {
+          flex: 0 0 28px;
+          width: 28px;
+          height: 28px;
+          border-radius: 50%;
+          background: rgba(255,255,255,0.2);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+      `}
+      </style>
+
+      {toast && (
+        <div className={`form-toast ${toast.includes("failed") ? "error" : "success"} show`}>
+          <div className="toast-icon">
+            {toast.includes("failed") ? "✕" : "✓"}
+          </div>
+          <span>{toast}</span>
+        </div>
+      )}
       
     </div>
   );

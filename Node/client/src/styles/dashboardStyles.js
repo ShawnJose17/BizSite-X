@@ -86,7 +86,8 @@ export const searchInput = {
   width: "300px",
   fontSize: "14px",
   outline: "none",
-  backdropFilter: "blur(10px)"
+  backdropFilter: "blur(10px)",
+  transition: "all 0.25s ease"
 };
 
 /* CARD DESIGN */
