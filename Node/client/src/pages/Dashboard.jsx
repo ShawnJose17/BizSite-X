@@ -80,6 +80,31 @@ function Dashboard() {
 
   const [activeMessage, setActiveMessage] = useState(null);
 
+  const openMessage = async (contact) => {
+    setActiveMessage(contact);
+
+    // Only update if it's unread
+    if (!contact.is_read) {
+      const token = localStorage.getItem("token");
+
+      // Optimistic UI update
+      setContacts(prev =>
+        prev.map(c =>
+          c.id === contact.id ? { ...c, is_read: true } : c
+        )
+      );
+
+      try {
+        await fetch(`http://localhost:3000/contact/${contact.id}/read`, {
+          method: "PATCH",
+          headers: { Authorization: `Bearer ${token}` }
+        });
+      } catch (err) {
+        console.error("Failed to mark as read");
+      }
+    }
+  };
+
   return (
     <div style={S.layout}>
       {/* 1. BACKGROUND ORBS (System DNA) */}
@@ -172,7 +197,7 @@ function Dashboard() {
                       overflow: "hidden",
                       cursor: "pointer"
                     }}
-                    onClick={() => setActiveMessage(contact)}
+                    onClick={() => openMessage(contact)}
                   >
                     {contact.message}
                   </p>
@@ -322,26 +347,9 @@ function Dashboard() {
             </div>
 
             <div style={{ display: "flex", gap: "10px" }}>
-              <button
-                style={S.buttonPrimary}
-                onClick={() => {
-                  handleToggleRead(activeMessage.id);
-                  setActiveMessage(null);
-                }}
-                onMouseEnter={(e) => {
-    e.currentTarget.style.transform = "translateY(-2px)";
-    e.currentTarget.style.opacity = "0.9";
-  }}
-  onMouseLeave={(e) => {
-    e.currentTarget.style.transform = "translateY(0)";
-    e.currentTarget.style.opacity = "1";
-  }}
-              >
-                {activeMessage.is_read ? "Mark Unread" : "Mark Read"}
-              </button>
 
               <button
-                style={{ ...S.buttonOutline, color: "#ef4444" }}
+                style={{ ...S.buttonOutline, color: "#ffffff", backgroundColor: "#ef4444", flex: 0.5, display: "block", margin: "0 auto"}}
                 onClick={() => {
                   setSelectedId(activeMessage.id);
                   setActiveMessage(null);
