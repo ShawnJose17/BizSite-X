@@ -1,6 +1,9 @@
 import { useEffect, useState, useMemo } from "react";
 import { getContacts } from "../services/api";
 import * as S from "../styles/dashboardStyles";
+import MessageCard from "../components/MessageCard";
+import MessageModal from "../components/MessageModal";
+import DeleteModal from "../components/DeleteModal";
 
 function Dashboard() {
   const [contacts, setContacts] = useState([]);
@@ -136,14 +139,19 @@ function Dashboard() {
           ))}
         </nav>
 
-        <button onClick={handleLogout} style={S.logoutButton} onMouseEnter={(e) => {
-    e.currentTarget.style.transform = "translateY(-2px)";
-    e.currentTarget.style.opacity = "0.9";
-  }}
-  onMouseLeave={(e) => {
-    e.currentTarget.style.transform = "translateY(0)";
-    e.currentTarget.style.opacity = "1";
-  }}>Logout</button>
+        <button
+          onClick={handleLogout}
+          style={S.logoutButton}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = "translateY(-2px)";
+            e.currentTarget.style.opacity = "0.9";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = "translateY(0)";
+            e.currentTarget.style.opacity = "1";
+          }}>
+            Logout
+        </button>
       </div>
 
       {/* 3. MAIN CONTENT */}
@@ -177,66 +185,17 @@ function Dashboard() {
           <>
             <div style={S.grid}>
               {processedContacts.slice(0, visibleCount).map((contact, index) => (
-                <div key={contact.id} style={{ ...S.card, animationDelay: `${index * 0.05}s`, cursor: 'pointer'}} onMouseEnter={(e) => {
-    e.currentTarget.style.transform = "translateY(-5px)";
-    e.currentTarget.style.opacity = "0.9";
-  }}
-  onMouseLeave={(e) => {
-    e.currentTarget.style.transform = "translateY(0)";
-    e.currentTarget.style.opacity = "1";
-  }}>
-                  <div style={S.badge(contact.is_read)}>
-                    <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: contact.is_read ? '#999' : '#2563eb' }}></span>
-                    {contact.is_read ? "Archived" : "New Inquiry"}
-                  </div>
-                  
-                  <h3 style={S.cardTitle}>{contact.name}</h3>
-                  <p style={{ fontSize: '13px', color: '#2563eb', fontWeight: '500', marginBottom: '16px' }}>{contact.email}</p>
-                  
-                  <p
-                    style={{
-                      fontSize: "14px",
-                      color: "#444",
-                      lineHeight: "1.6",
-                      flex: 1,
-                      display: "-webkit-box",
-                      WebkitLineClamp: 3,
-                      WebkitBoxOrient: "vertical",
-                      overflow: "hidden",
-                      cursor: "pointer"
-                    }}
-                    onClick={() => openMessage(contact)}
-                  >
-                    {contact.message}
-                  </p>
-
-                  <div style={{ display: 'flex', gap: '10px', marginTop: '24px' }}>
-                    <button onClick={() => handleToggleRead(contact.id)} style={S.buttonPrimary} onMouseEnter={(e) => {
-    e.currentTarget.style.transform = "translateY(-2px)";
-    e.currentTarget.style.opacity = "0.9";
-  }}
-  onMouseLeave={(e) => {
-    e.currentTarget.style.transform = "translateY(0)";
-    e.currentTarget.style.opacity = "1";
-  }}>
-                      {contact.is_read ? "Unread" : "Mark Read"}
-                    </button>
-                    <button onClick={() => { setSelectedId(contact.id); setDeleteModal(true); }} style={S.buttonOutline} onMouseEnter={(e) => {
-    e.currentTarget.style.transform = "translateY(-2px)";
-    e.currentTarget.style.opacity = "0.9";
-  }}
-  onMouseLeave={(e) => {
-    e.currentTarget.style.transform = "translateY(0)";
-    e.currentTarget.style.opacity = "1";
-  }}>
-                      Delete
-                    </button>
-                  </div>
-                  
-                  <span style={{ fontSize: '11px', color: '#aaa', marginTop: '15px' }}>
-                    {new Date(contact.created_at).toLocaleDateString()} at {new Date(contact.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
-                  </span>
-                </div>
+                <MessageCard
+                  key={contact.id}
+                  contact={contact}
+                  index={index}
+                  onOpen={openMessage}
+                  onToggleRead={handleToggleRead}
+                  onDelete={(id) => {
+                    setSelectedId(id);
+                    setDeleteModal(true);
+                  }}
+                />
               ))}
             </div>
 
@@ -246,6 +205,14 @@ function Dashboard() {
                 <button 
                   onClick={() => setVisibleCount(prev => prev + 6)} 
                   style={{ ...S.buttonOutline, padding: '12px 40px' }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = "translateY(-2px)";
+                    e.currentTarget.style.opacity = "0.9";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = "translateY(0)";
+                    e.currentTarget.style.opacity = "1";
+                  }}
                 >
                   Load More Messages
                 </button>
@@ -256,128 +223,21 @@ function Dashboard() {
       </div>
 
       {/* DELETE MODAL (Glassmorphism style) */}
-      {deleteModal && (
-        <div
-          style={{
-            ...S.modalOverlay,
-            backdropFilter: "blur(10px)",
-            animation: "fadeIn 0.2s ease"
-          }}
-        >
-          <div
-            style={{
-              ...S.card,
-              width: "360px",
-              textAlign: "center",
-              animation: "scaleIn 0.2s ease"
-            }}
-          >
-            <h3 style={{ marginBottom: "10px" }}>Remove Inquiry?</h3>
-            <p style={{ fontSize: "14px", color: "#666", marginBottom: "24px" }}>
-              This action cannot be undone.
-            </p>
+      <DeleteModal
+        isOpen={deleteModal}
+        onClose={() => setDeleteModal(false)}
+        onConfirm={confirmDelete}
+      />
 
-            <div style={{ display: "flex", gap: "10px" }}>
-              <button
-                style={{ ...S.buttonOutline, flex: 1 }}
-                onClick={() => setDeleteModal(false)}
-                onMouseEnter={(e) => {
-    e.currentTarget.style.transform = "translateY(-2px)";
-    e.currentTarget.style.opacity = "0.9";
-  }}
-  onMouseLeave={(e) => {
-    e.currentTarget.style.transform = "translateY(0)";
-    e.currentTarget.style.opacity = "1";
-  }}
-              >
-                Cancel
-              </button>
-
-              <button
-                style={{ ...S.buttonPrimary, background: "#ef4444", flex: 1 }}
-                onClick={confirmDelete}
-                onMouseEnter={(e) => {
-    e.currentTarget.style.transform = "translateY(-2px)";
-    e.currentTarget.style.opacity = "0.9";
-  }}
-  onMouseLeave={(e) => {
-    e.currentTarget.style.transform = "translateY(0)";
-    e.currentTarget.style.opacity = "1";
-  }}
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-        </div>
-        
-      )}
-
-      {activeMessage && (
-        <div
-          style={{
-            ...S.modalOverlay,
-            backdropFilter: "blur(12px)",
-          }}
-          onClick={() => setActiveMessage(null)}
-        >
-          <div
-            style={{
-              ...S.card,
-              width: "500px",
-              maxHeight: "80vh",
-              overflowY: "auto",
-              textAlign: "left",
-              animation: "scaleIn 0.25s ease"
-            }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div style={{ marginBottom: "16px" }}>
-              <h2 style={{ marginBottom: "4px" }}>{activeMessage.name}</h2>
-              <p style={{ color: "#2563eb", fontSize: "14px" }}>
-                {activeMessage.email}
-              </p>
-              <p style={{ fontSize: "12px", color: "#888", marginTop: "6px" }}>
-                {new Date(activeMessage.created_at).toLocaleString()}
-              </p>
-            </div>
-
-            <div
-              style={{
-                fontSize: "15px",
-                lineHeight: "1.7",
-                color: "#333",
-                marginBottom: "24px",
-                whiteSpace: "pre-wrap"
-              }}
-            >
-              {activeMessage.message}
-            </div>
-
-            <div style={{ display: "flex", gap: "10px" }}>
-
-              <button
-                style={{ ...S.buttonOutline, color: "#ffffff", backgroundColor: "#ef4444", flex: 0.5, display: "block", margin: "0 auto"}}
-                onClick={() => {
-                  setSelectedId(activeMessage.id);
-                  setActiveMessage(null);
-                  setDeleteModal(true);
-                }}
-                onMouseEnter={(e) => {
-    e.currentTarget.style.transform = "translateY(-2px)";
-    e.currentTarget.style.opacity = "0.9";
-  }}
-  onMouseLeave={(e) => {
-    e.currentTarget.style.transform = "translateY(0)";
-    e.currentTarget.style.opacity = "1";
-  }}
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <MessageModal
+        message={activeMessage}
+        onClose={() => setActiveMessage(null)}
+        onDelete={(id) => {
+          setSelectedId(id);
+          setActiveMessage(null);
+          setDeleteModal(true);
+        }}
+      />
 
       <style>{`
       @keyframes fadeIn {
