@@ -2,9 +2,10 @@ export const layout = {
   display: "flex",
   height: "100vh",
   fontFamily: "'Inter', sans-serif",
-  background: "#fff", // Pure white base
+  background: "#fff",
   overflow: "visible",
-  position: "relative"
+  position: "relative",
+  flexDirection: "row" // default
 };
 
 /* THE SOFT BACKGROUND ORBS */

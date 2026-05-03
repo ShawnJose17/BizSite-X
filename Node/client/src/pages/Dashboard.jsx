@@ -14,6 +14,16 @@ function Dashboard() {
   const [deleteModal, setDeleteModal] = useState(false);
   const [selectedId, setSelectedId] = useState(null);
   const [toast, setToast] = useState("");
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile(); // run once
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
     getContacts()
@@ -109,24 +119,58 @@ function Dashboard() {
   };
 
   return (
-    <div style={S.layout}>
+    <div style={{ ...S.layout, flexDirection: isMobile ? "column" : "row"}}>
+
       {/* 1. BACKGROUND ORBS (System DNA) */}
       <div style={S.bg}>
         <div style={{ ...S.orb, width: '600px', height: '600px', background: '#2563eb', top: '-10%', left: '-5%' }}></div>
         <div style={{ ...S.orb, width: '500px', height: '500px', background: '#9333ea', bottom: '-10%', right: '-5%' }}></div>
       </div>
 
+      {isMobile && sidebarOpen && (
+        <div
+          onClick={() => setSidebarOpen(false)}
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100vw",
+            height: "100vh",
+            background: "rgba(0,0,0,0.3)",
+            zIndex: 9998
+          }}
+        />
+      )}
+
       {/* 2. GLASS SIDEBAR */}
-      <div style={S.sidebar}>
+      <div
+        style={{
+          ...S.sidebar,
+          position: isMobile ? "fixed" : "relative",
+          top: 0,
+          left: isMobile ? (sidebarOpen ? "0" : "-100%") : "0",
+          height: isMobile ? "100vh" : "auto",
+          width: isMobile ? "260px" : "280px",
+          zIndex: 9999,
+          transition: "left 0.3s ease",
+          boxShadow: isMobile ? "0 0 20px rgba(0,0,0,0.2)" : "none"
+        }}
+      >
+
         <h2 style={S.sidebarTitle}>Asterra</h2>
         
-        <nav style={{ flex: 1 }}>
+        <nav style={{ flex: 1,
+          overflowY: "auto",
+          display: "flex",
+          flexDirection: isMobile ? "column" : "column",
+          gap: isMobile ? "8px" : "0" }}>
           {["all", "unread", "read"].map((type) => (
             <button
               key={type}
-              onClick={() => { setFilter(type); setVisibleCount(6); }}
+              onClick={() => { setFilter(type); setVisibleCount(6); if (isMobile) setSidebarOpen(false); }}
               style={{
                 ...S.sidebarButton,
+                minWidth: isMobile ? "120px" : "auto",
                 background: filter === type ? "rgba(37,99,235,0.1)" : "transparent",
                 color: filter === type ? "#2563eb" : "#555"
               }}
@@ -141,7 +185,7 @@ function Dashboard() {
 
         <button
           onClick={handleLogout}
-          style={S.logoutButton}
+          style={{...S.logoutButton, marginTop: "20px", bottom: "20px", position: "sticky"}}
           onMouseEnter={(e) => {
             e.currentTarget.style.transform = "translateY(-2px)";
             e.currentTarget.style.opacity = "0.9";
@@ -156,16 +200,51 @@ function Dashboard() {
 
       {/* 3. MAIN CONTENT */}
       <div style={S.main}>
-        <header style={S.topBar}>
-          <div>
+        <header style={{
+          ...S.topBar,
+          position: "relative",
+          flexDirection: isMobile ? "column" : "row",
+          alignItems: isMobile ? "stretch" : "flex-start"
+        }}>
+
+          {/* HAMBURGER (LEFT FIXED) */}
+          {isMobile && (
+            <button
+              onClick={() => setSidebarOpen(true)}
+              style={{
+                position: "absolute",
+                left: "10px",
+                top: "40px",
+                fontSize: "22px",
+                background: "transparent",
+                border: "none",
+                cursor: "pointer"
+              }}
+            >
+              ☰
+            </button>
+          )}
+
+          {/* TITLE (CENTERED) */}
+          <div style={{
+            width: "100%",
+            textAlign: isMobile ? "center" : "left"
+          }}>
             <h1 style={{ fontSize: '28px', fontWeight: '800' }}>Messages</h1>
-            <p style={{ color: '#666', fontSize: '14px' }}>Real-time message management</p>
+            <p style={{ color: '#666', fontSize: '14px' }}>
+              Real-time message management
+            </p>
           </div>
           
           <input 
             type="text" 
             placeholder="Search messages" 
-            style={S.searchInput}
+            style={{
+              ...S.searchInput,
+              width: isMobile ? "85%" : "300px",
+              maxWidth: isMobile ? "340px" : "300px",
+              alignSelf: isMobile ? "center" : "auto"
+            }}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             onFocus={(e) => {
@@ -183,7 +262,8 @@ function Dashboard() {
           <div style={{ textAlign: 'center', marginTop: '100px', color: '#666' }}>Initializing Dashboard...</div>
         ) : (
           <>
-            <div style={S.grid}>
+            <div style={{...S.grid,
+              gridTemplateColumns: isMobile ? "1fr" : "repeat(auto-fill, minmax(340px, 1fr))"}}>
               {processedContacts.slice(0, visibleCount).map((contact, index) => (
                 <MessageCard
                   key={contact.id}
@@ -195,6 +275,7 @@ function Dashboard() {
                     setSelectedId(id);
                     setDeleteModal(true);
                   }}
+                  isMobile={isMobile}
                 />
               ))}
             </div>

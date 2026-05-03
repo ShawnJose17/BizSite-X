@@ -1,6 +1,6 @@
 import * as S from "../styles/dashboardStyles";
 
-function MessageCard({ contact, index, onOpen, onToggleRead, onDelete }) {
+function MessageCard({ contact, index, onOpen, onToggleRead, onDelete, isMobile }) {
   return (
     <div
       style={{ ...S.card, animationDelay: `${index * 0.05}s`, cursor: "pointer" }}
@@ -48,7 +48,7 @@ function MessageCard({ contact, index, onOpen, onToggleRead, onDelete }) {
             e.stopPropagation();
             onToggleRead(contact.id);
           }}
-          style={S.buttonPrimary}
+          style={{...S.buttonPrimary, padding: isMobile ? "12px" : "10px 18px"}}
           onMouseEnter={(e) => {
             e.currentTarget.style.transform = "translateY(-2px)";
             e.currentTarget.style.opacity = "0.9";
@@ -66,7 +66,7 @@ function MessageCard({ contact, index, onOpen, onToggleRead, onDelete }) {
             e.stopPropagation();
             onDelete(contact.id);
           }}
-          style={S.buttonOutline}
+          style={{...S.buttonOutline, padding: isMobile ? "12px" : "10px 18px"}}
           onMouseEnter={(e) => {
             e.currentTarget.style.transform = "translateY(-2px)";
             e.currentTarget.style.opacity = "0.9";

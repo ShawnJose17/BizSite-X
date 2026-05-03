@@ -11,7 +11,8 @@ function MessageModal({ message, onClose, onDelete }) {
       <div
         style={{
           ...S.card,
-          width: "500px",
+          width: "90%",
+          maxWidth: "500px",
           maxHeight: "80vh",
           overflowY: "auto",
           textAlign: "left",

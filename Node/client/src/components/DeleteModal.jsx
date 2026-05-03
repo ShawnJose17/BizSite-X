@@ -5,7 +5,7 @@ function DeleteModal({ isOpen, onClose, onConfirm }) {
 
   return (
     <div style={{ ...S.modalOverlay, backdropFilter: "blur(10px)" }}>
-      <div style={{ ...S.card, width: "360px", textAlign: "center", animation: "scaleIn 0.25s ease"}}>
+      <div style={{ ...S.card, width: "90%", maxwidth: "360px", textAlign: "center", animation: "scaleIn 0.25s ease"}}>
         <h3>Remove Inquiry?</h3>
         <p style={{ fontSize: "14px", color: "#666", marginBottom: "24px" }}>
           This action cannot be undone.
