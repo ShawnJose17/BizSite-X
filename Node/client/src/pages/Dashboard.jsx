@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { getContacts } from "../services/api";
 import * as S from "../styles/dashboardStyles";
 
@@ -6,7 +6,8 @@ function Dashboard() {
   const [contacts, setContacts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("all");
-  const [sortBy, setSortBy] = useState("newest");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [visibleCount, setVisibleCount] = useState(6); // Pagination
   const [deleteModal, setDeleteModal] = useState(false);
   const [selectedId, setSelectedId] = useState(null);
   const [toast, setToast] = useState("");
@@ -23,307 +24,338 @@ function Dashboard() {
       });
   }, []);
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    window.location.href = "/";
-  };
-
-  const handleDelete = async (id) => {
-    const token = localStorage.getItem("token");
-
-    await fetch(`http://localhost:3000/contact/${id}`, {
-      method: "DELETE",
-      headers: { Authorization: `Bearer ${token}` }
-    });
-
-    setContacts((prev) => prev.filter((c) => c.id !== id));
-  };
-
-  const confirmDelete = async () => {
-    const token = localStorage.getItem("token");
-
-    await fetch(`http://localhost:3000/contact/${selectedId}`, {
-      method: "DELETE",
-      headers: { Authorization: `Bearer ${token}` }
-    });
-
-    setContacts((prev) => prev.filter((c) => c.id !== selectedId));
-
-    setDeleteModal(false);
-    setToast("Message deleted");
-
-    setTimeout(() => setToast(""), 3000);
-  };
+  // --- Search & Filter Logic ---
+  const processedContacts = useMemo(() => {
+    return contacts
+      .filter(c => {
+        const matchesFilter = filter === "unread" ? !c.is_read : filter === "read" ? c.is_read : true;
+        const matchesSearch = c.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                             c.message.toLowerCase().includes(searchTerm.toLowerCase());
+        return matchesFilter && matchesSearch;
+      })
+      .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+  }, [contacts, filter, searchTerm]);
 
   const handleToggleRead = async (id) => {
     const token = localStorage.getItem("token");
-
+    setContacts(prev => prev.map(c => c.id === id ? { ...c, is_read: !c.is_read } : c));
+    
     await fetch(`http://localhost:3000/contact/${id}/read`, {
       method: "PATCH",
       headers: { Authorization: `Bearer ${token}` }
     });
-
-    setContacts((prev) =>
-      prev.map((c) =>
-        c.id === id ? { ...c, is_read: !c.is_read } : c
-      )
-    );
   };
 
-  const filteredContacts = contacts.filter((contact) => {
-    if (filter === "unread") return !contact.is_read;
-    if (filter === "read") return contact.is_read;
-    return true;
-  });
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    window.location.href = "/admin/login";
+  };
 
-  const sortedContacts = [...filteredContacts].sort((a, b) => {
-    if (sortBy === "newest")
-      return new Date(b.created_at) - new Date(a.created_at);
-    if (sortBy === "oldest")
-      return new Date(a.created_at) - new Date(b.created_at);
-    if (sortBy === "name")
-      return a.name.localeCompare(b.name);
-    return 0;
-  });
+  const confirmDelete = async () => {
+    try {
+      const token = localStorage.getItem("token");
+
+      const res = await fetch(`http://localhost:3000/contact/${selectedId}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+
+      if (!res.ok) {
+        throw new Error("Delete failed");
+      }
+
+      setContacts((prev) => prev.filter((c) => c.id !== selectedId));
+
+      setDeleteModal(false);
+      setToast("Message deleted");
+
+      setTimeout(() => setToast(""), 3000);
+    } catch (err) {
+      console.error(err);
+      setToast("Delete failed");
+    }
+  };
+
+  const [activeMessage, setActiveMessage] = useState(null);
 
   return (
     <div style={S.layout}>
-      {/* Sidebar */}
+      {/* 1. BACKGROUND ORBS (System DNA) */}
+      <div style={S.bg}>
+        <div style={{ ...S.orb, width: '600px', height: '600px', background: '#2563eb', top: '-10%', left: '-5%' }}></div>
+        <div style={{ ...S.orb, width: '500px', height: '500px', background: '#9333ea', bottom: '-10%', right: '-5%' }}></div>
+      </div>
+
+      {/* 2. GLASS SIDEBAR */}
       <div style={S.sidebar}>
         <h2 style={S.sidebarTitle}>Asterra</h2>
-
-        {["all", "unread", "read"].map((type) => (
-          <button
-            key={type}
-            onClick={() => setFilter(type)}
-            style={{
-              ...sidebarButton,
-              backgroundColor:
-                filter === type ? "#2563eb" : "transparent",
-              color:
-                filter === type ? "white" : "#1a1a1a"
-            }}
-            onMouseEnter={(e) => {
-              if (filter !== type)
-                e.currentTarget.style.backgroundColor =
-                  "#e5e7eb";
-            }}
-            onMouseLeave={(e) => {
-              if (filter !== type)
-                e.currentTarget.style.backgroundColor =
-                  "transparent";
-            }}
-          >
-            {type === "all" &&
-              `All (${contacts.length})`}
-            {type === "unread" &&
-              `Unread (${contacts.filter(c => !c.is_read).length})`}
-            {type === "read" &&
-              `Read (${contacts.filter(c => c.is_read).length})`}
-          </button>
-        ))}
-
-        <div style={{ marginTop: "auto" }}>
-          <button
-            onClick={handleLogout}
-            style={logoutButton}
-            onMouseEnter={(e) =>
-              (e.currentTarget.style.opacity = "0.85")
-            }
-            onMouseLeave={(e) =>
-              (e.currentTarget.style.opacity = "1")
-            }
-          >
-            Logout
-          </button>
-        </div>
-      </div>
-
-      {/* Main */}
-      <div style={mainContentStyle}>
-        <div style={{ marginBottom: "30px" }}>
-          <h1 style={{ fontSize: "28px", marginBottom: "5px" }}>
-            Dashboard
-          </h1>
-          <p style={{ color: "#666" }}>
-            Manage incoming messages and client inquiries
-          </p>
-        </div>
-
-        {/* Sort */}
-        <div style={sortContainer}>
-          <span style={{ fontWeight: "500" }}>
-            Sort by:
-          </span>
-
-          {["newest", "oldest", "name"].map((type) => (
+        
+        <nav style={{ flex: 1 }}>
+          {["all", "unread", "read"].map((type) => (
             <button
               key={type}
-              onClick={() => setSortBy(type)}
+              onClick={() => { setFilter(type); setVisibleCount(6); }}
               style={{
-                ...sortButton,
-                backgroundColor:
-                  sortBy === type
-                    ? "#2563eb"
-                    : "#e5e7eb",
-                color:
-                  sortBy === type
-                    ? "white"
-                    : "#1a1a1a"
-              }}
-              onMouseEnter={(e) => {
-                if (sortBy !== type)
-                  e.currentTarget.style.backgroundColor =
-                    "#d1d5db";
-              }}
-              onMouseLeave={(e) => {
-                if (sortBy !== type)
-                  e.currentTarget.style.backgroundColor =
-                    "#e5e7eb";
+                ...S.sidebarButton,
+                background: filter === type ? "rgba(37,99,235,0.1)" : "transparent",
+                color: filter === type ? "#2563eb" : "#555"
               }}
             >
-              {type === "newest" && "Newest"}
-              {type === "oldest" && "Oldest"}
-              {type === "name" && "Name A-Z"}
+              <span style={{ textTransform: 'capitalize' }}>{type}</span>
+              <span style={S.badgeStyle}>
+                {contacts.filter(c => type === 'all' ? true : type === 'unread' ? !c.is_read : c.is_read).length}
+              </span>
             </button>
           ))}
-        </div>
+        </nav>
+
+        <button onClick={handleLogout} style={S.logoutButton} onMouseEnter={(e) => {
+    e.currentTarget.style.transform = "translateY(-2px)";
+    e.currentTarget.style.opacity = "0.9";
+  }}
+  onMouseLeave={(e) => {
+    e.currentTarget.style.transform = "translateY(0)";
+    e.currentTarget.style.opacity = "1";
+  }}>Logout</button>
+      </div>
+
+      {/* 3. MAIN CONTENT */}
+      <div style={S.main}>
+        <header style={S.topBar}>
+          <div>
+            <h1 style={{ fontSize: '28px', fontWeight: '800' }}>Messages</h1>
+            <p style={{ color: '#666', fontSize: '14px' }}>Real-time message management</p>
+          </div>
+          
+          <input 
+            type="text" 
+            placeholder="Search messages..." 
+            style={S.searchInput}
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </header>
 
         {loading ? (
-          <p>Loading...</p>
+          <div style={{ textAlign: 'center', marginTop: '100px', color: '#666' }}>Initializing Dashboard...</div>
         ) : (
-          <div style={cardContainer}>
-            {sortedContacts.map((contact) => (
-              <div
-                key={contact.id}
-                style={{
-                  ...S.card,
-                  borderLeft: contact.is_read
-                    ? "4px solid #e5e7eb"
-                    : "4px solid #2563eb",
-                  backgroundColor: contact.is_read
-                    ? "#ffffff"
-                    : "#f0f7ff"
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform =
-                    "translateY(-4px)";
-                  e.currentTarget.style.boxShadow =
-                    "0 10px 24px rgba(0,0,0,0.08)";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform =
-                    "translateY(0px)";
-                  e.currentTarget.style.boxShadow =
-                    "0 2px 8px rgba(0,0,0,0.04)";
-                }}
-              >
-                <h3>{contact.name}</h3>
-                <p style={{ color: "#666" }}>
-                  {contact.email}
-                </p>
-                <p style={{ marginTop: "12px" }}>
-                  {contact.message}
-                </p>
-
-                <div style={actionContainer}>
-                  <button
-                    onClick={() =>
-                      handleToggleRead(contact.id)
-                    }
+          <>
+            <div style={S.grid}>
+              {processedContacts.slice(0, visibleCount).map((contact, index) => (
+                <div key={contact.id} style={{ ...S.card, animationDelay: `${index * 0.05}s`, cursor: 'pointer'}} onMouseEnter={(e) => {
+    e.currentTarget.style.transform = "translateY(-5px)";
+    e.currentTarget.style.opacity = "0.9";
+  }}
+  onMouseLeave={(e) => {
+    e.currentTarget.style.transform = "translateY(0)";
+    e.currentTarget.style.opacity = "1";
+  }}>
+                  <div style={S.badge(contact.is_read)}>
+                    <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: contact.is_read ? '#999' : '#2563eb' }}></span>
+                    {contact.is_read ? "Archived" : "New Inquiry"}
+                  </div>
+                  
+                  <h3 style={S.cardTitle}>{contact.name}</h3>
+                  <p style={{ fontSize: '13px', color: '#2563eb', fontWeight: '500', marginBottom: '16px' }}>{contact.email}</p>
+                  
+                  <p
                     style={{
-                      ...S.buttonPrimary,
-                      backgroundColor: contact.is_read
-                        ? "#f59e0b"
-                        : "#10b981"
+                      fontSize: "14px",
+                      color: "#444",
+                      lineHeight: "1.6",
+                      flex: 1,
+                      display: "-webkit-box",
+                      WebkitLineClamp: 3,
+                      WebkitBoxOrient: "vertical",
+                      overflow: "hidden",
+                      cursor: "pointer"
                     }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.transform =
-                        "scale(1.05)";
-                      e.currentTarget.style.opacity =
-                        "0.9";
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.transform =
-                        "scale(1)";
-                      e.currentTarget.style.opacity =
-                        "1";
-                    }}
+                    onClick={() => setActiveMessage(contact)}
                   >
-                    {contact.is_read
-                      ? "Mark Unread"
-                      : "Mark Read"}
-                  </button>
+                    {contact.message}
+                  </p>
 
-                  <button
-                    onClick={() => {
-                      setSelectedId(contact.id);
-                      setDeleteModal(true);
-                    }}
-                    style={S.buttonDanger}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.transform =
-                        "scale(1.05)";
-                      e.currentTarget.style.opacity =
-                        "0.9";
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.transform =
-                        "scale(1)";
-                      e.currentTarget.style.opacity =
-                        "1";
-                    }}
-                  >
-                    Delete
-                  </button>
+                  <div style={{ display: 'flex', gap: '10px', marginTop: '24px' }}>
+                    <button onClick={() => handleToggleRead(contact.id)} style={S.buttonPrimary} onMouseEnter={(e) => {
+    e.currentTarget.style.transform = "translateY(-2px)";
+    e.currentTarget.style.opacity = "0.9";
+  }}
+  onMouseLeave={(e) => {
+    e.currentTarget.style.transform = "translateY(0)";
+    e.currentTarget.style.opacity = "1";
+  }}>
+                      {contact.is_read ? "Unread" : "Mark Read"}
+                    </button>
+                    <button onClick={() => { setSelectedId(contact.id); setDeleteModal(true); }} style={S.buttonOutline} onMouseEnter={(e) => {
+    e.currentTarget.style.transform = "translateY(-2px)";
+    e.currentTarget.style.opacity = "0.9";
+  }}
+  onMouseLeave={(e) => {
+    e.currentTarget.style.transform = "translateY(0)";
+    e.currentTarget.style.opacity = "1";
+  }}>
+                      Delete
+                    </button>
+                  </div>
+                  
+                  <span style={{ fontSize: '11px', color: '#aaa', marginTop: '15px' }}>
+                    {new Date(contact.created_at).toLocaleDateString()} at {new Date(contact.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                  </span>
                 </div>
+              ))}
+            </div>
 
-                <small style={dateStyle}>
-                  {new Date(
-                    contact.created_at
-                  ).toLocaleString()}
-                </small>
+            {/* 4. PAGINATION / LOAD MORE */}
+            {processedContacts.length > visibleCount && (
+              <div style={{ textAlign: 'center', marginTop: '40px' }}>
+                <button 
+                  onClick={() => setVisibleCount(prev => prev + 6)} 
+                  style={{ ...S.buttonOutline, padding: '12px 40px' }}
+                >
+                  Load More Messages
+                </button>
               </div>
-            ))}
-          </div>
+            )}
+          </>
         )}
       </div>
-      {deleteModal && (
-        <div style={modalOverlay}>
-          <div style={modalBox}>
-            <h3>Delete Message</h3>
-            <p>Are you sure you want to delete this message?</p>
 
-            <div style={{ marginTop: "20px", display: "flex", gap: "10px" }}>
-              <button style={cancelBtn} onClick={() => setDeleteModal(false)}
+      {/* DELETE MODAL (Glassmorphism style) */}
+      {deleteModal && (
+        <div
+          style={{
+            ...S.modalOverlay,
+            backdropFilter: "blur(10px)",
+            animation: "fadeIn 0.2s ease"
+          }}
+        >
+          <div
+            style={{
+              ...S.card,
+              width: "360px",
+              textAlign: "center",
+              animation: "scaleIn 0.2s ease"
+            }}
+          >
+            <h3 style={{ marginBottom: "10px" }}>Remove Inquiry?</h3>
+            <p style={{ fontSize: "14px", color: "#666", marginBottom: "24px" }}>
+              This action cannot be undone.
+            </p>
+
+            <div style={{ display: "flex", gap: "10px" }}>
+              <button
+                style={{ ...S.buttonOutline, flex: 1 }}
+                onClick={() => setDeleteModal(false)}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.transform =
-                    "scale(1.05)";
-                  e.currentTarget.style.opacity =
-                    "0.9";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform =
-                    "scale(1)";
-                  e.currentTarget.style.opacity =
-                    "1";
-                }}>
+    e.currentTarget.style.transform = "translateY(-2px)";
+    e.currentTarget.style.opacity = "0.9";
+  }}
+  onMouseLeave={(e) => {
+    e.currentTarget.style.transform = "translateY(0)";
+    e.currentTarget.style.opacity = "1";
+  }}
+              >
                 Cancel
               </button>
 
-              <button style={confirmBtn} onClick={confirmDelete}
+              <button
+                style={{ ...S.buttonPrimary, background: "#ef4444", flex: 1 }}
+                onClick={confirmDelete}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.transform =
-                    "scale(1.05)";
-                  e.currentTarget.style.opacity =
-                    "0.9";
+    e.currentTarget.style.transform = "translateY(-2px)";
+    e.currentTarget.style.opacity = "0.9";
+  }}
+  onMouseLeave={(e) => {
+    e.currentTarget.style.transform = "translateY(0)";
+    e.currentTarget.style.opacity = "1";
+  }}
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+        
+      )}
+
+      {activeMessage && (
+        <div
+          style={{
+            ...S.modalOverlay,
+            backdropFilter: "blur(12px)",
+          }}
+          onClick={() => setActiveMessage(null)}
+        >
+          <div
+            style={{
+              ...S.card,
+              width: "500px",
+              maxHeight: "80vh",
+              overflowY: "auto",
+              textAlign: "left",
+              animation: "scaleIn 0.25s ease"
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div style={{ marginBottom: "16px" }}>
+              <h2 style={{ marginBottom: "4px" }}>{activeMessage.name}</h2>
+              <p style={{ color: "#2563eb", fontSize: "14px" }}>
+                {activeMessage.email}
+              </p>
+              <p style={{ fontSize: "12px", color: "#888", marginTop: "6px" }}>
+                {new Date(activeMessage.created_at).toLocaleString()}
+              </p>
+            </div>
+
+            <div
+              style={{
+                fontSize: "15px",
+                lineHeight: "1.7",
+                color: "#333",
+                marginBottom: "24px",
+                whiteSpace: "pre-wrap"
+              }}
+            >
+              {activeMessage.message}
+            </div>
+
+            <div style={{ display: "flex", gap: "10px" }}>
+              <button
+                style={S.buttonPrimary}
+                onClick={() => {
+                  handleToggleRead(activeMessage.id);
+                  setActiveMessage(null);
                 }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform =
-                    "scale(1)";
-                  e.currentTarget.style.opacity =
-                    "1";
-                }}>
+                onMouseEnter={(e) => {
+    e.currentTarget.style.transform = "translateY(-2px)";
+    e.currentTarget.style.opacity = "0.9";
+  }}
+  onMouseLeave={(e) => {
+    e.currentTarget.style.transform = "translateY(0)";
+    e.currentTarget.style.opacity = "1";
+  }}
+              >
+                {activeMessage.is_read ? "Mark Unread" : "Mark Read"}
+              </button>
+
+              <button
+                style={{ ...S.buttonOutline, color: "#ef4444" }}
+                onClick={() => {
+                  setSelectedId(activeMessage.id);
+                  setActiveMessage(null);
+                  setDeleteModal(true);
+                }}
+                onMouseEnter={(e) => {
+    e.currentTarget.style.transform = "translateY(-2px)";
+    e.currentTarget.style.opacity = "0.9";
+  }}
+  onMouseLeave={(e) => {
+    e.currentTarget.style.transform = "translateY(0)";
+    e.currentTarget.style.opacity = "1";
+  }}
+              >
                 Delete
               </button>
             </div>
@@ -331,163 +363,20 @@ function Dashboard() {
         </div>
       )}
 
-      {toast && (
-        <div style={toastStyle}>
-          {toast}
-        </div>
-      )}
+      <style>{`
+      @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+
+      @keyframes scaleIn {
+        from { transform: scale(0.95); opacity: 0; }
+        to { transform: scale(1); opacity: 1; }
+      }
+      `}</style>
+      
     </div>
   );
 }
-
-/* Layout */
-
-const layoutStyle = {
-  display: "flex",
-  height: "100vh",
-  fontFamily: "'Inter', sans-serif"
-};
-
-const sidebarStyle = {
-  width: "240px",
-  backgroundColor: "#f9fafb",
-  borderRight: "1px solid #e5e7eb",
-  padding: "30px",
-  display: "flex",
-  flexDirection: "column"
-};
-
-const sidebarButton = {
-  marginBottom: "10px",
-  padding: "10px",
-  border: "none",
-  cursor: "pointer",
-  textAlign: "left",
-  borderRadius: "6px",
-  transition: "all 0.2s ease"
-};
-
-const logoutButton = {
-  padding: "10px",
-  backgroundColor: "#111827",
-  color: "white",
-  border: "none",
-  cursor: "pointer",
-  width: "100%",
-  borderRadius: "6px",
-  transition: "all 0.2s ease"
-};
-
-const mainContentStyle = {
-  flex: 1,
-  padding: "40px",
-  backgroundColor: "#ffffff",
-  overflowY: "auto"
-};
-
-const sortContainer = {
-  marginBottom: "30px",
-  display: "flex",
-  alignItems: "center",
-  gap: "15px"
-};
-
-const sortButton = {
-  padding: "8px 16px",
-  borderRadius: "20px",
-  border: "none",
-  cursor: "pointer",
-  transition: "all 0.2s ease",
-  fontWeight: "500"
-};
-
-const cardContainer = {
-  display: "grid",
-  gap: "20px"
-};
-
-const cardStyle = {
-  padding: "22px",
-  borderRadius: "10px",
-  border: "1px solid #e5e7eb",
-  transition: "all 0.25s ease",
-  boxShadow: "0 2px 8px rgba(0,0,0,0.04)"
-};
-
-const actionContainer = {
-  marginTop: "18px",
-  display: "flex",
-  gap: "10px"
-};
-
-const actionButton = {
-  padding: "7px 14px",
-  borderRadius: "6px",
-  border: "none",
-  cursor: "pointer",
-  color: "white",
-  transition: "all 0.2s ease",
-  fontWeight: "500"
-};
-
-const dateStyle = {
-  display: "block",
-  marginTop: "12px",
-  fontSize: "12px",
-  color: "#888"
-};
-
-const modalOverlay = {
-  position: "fixed",
-  top: 0,
-  left: 0,
-  width: "100%",
-  height: "100%",
-  backgroundColor: "rgba(0,0,0,0.35)",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  animation: "fadeIn 0.2s ease"
-};
-
-const modalBox = {
-  backgroundColor: "white",
-  padding: "28px",
-  borderRadius: "10px",
-  width: "320px",
-  boxShadow: "0 12px 30px rgba(0,0,0,0.15)"
-};
-
-const cancelBtn = {
-  flex: 1,
-  padding: "8px",
-  border: "1px solid #e5e7eb",
-  background: "white",
-  borderRadius: "6px",
-  cursor: "pointer"
-};
-
-
-
-const confirmBtn = {
-  flex: 1,
-  padding: "8px",
-  border: "none",
-  backgroundColor: "#ef4444",
-  color: "white",
-  borderRadius: "6px",
-  cursor: "pointer"
-};
-
-const toastStyle = {
-  position: "fixed",
-  bottom: "30px",
-  right: "30px",
-  backgroundColor: "#111827",
-  color: "white",
-  padding: "12px 18px",
-  borderRadius: "8px",
-  boxShadow: "0 8px 20px rgba(0,0,0,0.2)"
-};
 
 export default Dashboard;
