@@ -53,7 +53,7 @@ function Dashboard() {
     const token = localStorage.getItem("token");
     setContacts(prev => prev.map(c => c.id === id ? { ...c, is_read: !c.is_read } : c));
     
-    await fetch(`${BASE_URL}/contact/${id}/read`, {
+    await fetch(`${import.meta.env.VITE_API_URL}/contact/${id}/read`, {
       method: "PATCH",
       headers: { Authorization: `Bearer ${token}` }
     });
@@ -68,7 +68,7 @@ function Dashboard() {
     try {
       const token = localStorage.getItem("token");
 
-      const res = await fetch(`${BASE_URL}/contact/${selectedId}`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/contact/${selectedId}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`
@@ -108,7 +108,7 @@ function Dashboard() {
       );
 
       try {
-        await fetch(`${BASE_URL}/contact/${contact.id}/read`, {
+        await fetch(`${import.meta.env.VITE_API_URL}/contact/${contact.id}/read`, {
           method: "PATCH",
           headers: { Authorization: `Bearer ${token}` }
         });

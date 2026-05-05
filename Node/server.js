@@ -16,7 +16,9 @@ const app = express();
 // Trust proxy (important for correct IP detection behind proxies)
 app.set("trust proxy", 1);
 
-app.use(cors());
+app.use(cors({
+  origin: "*", // later restrict this
+}));
 
 // Security headers
 app.use(helmet());
