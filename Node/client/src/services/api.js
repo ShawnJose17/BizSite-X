@@ -1,4 +1,4 @@
-const API_BASE = "http://localhost:3000";
+const BASE_URL = import.meta.env.VITE_API_URL || "";
 
 export const loginAdmin = async (data) => {
   const res = await fetch(`${API_BASE}/admin/login`, {
@@ -47,7 +47,7 @@ export const getContacts = async () => {
     throw new Error("No token found");
   }
 
-  const res = await fetch("http://localhost:3000/contact", {
+  const res = await fetch("${BASE_URL}/contact", {
     headers: {
       Authorization: `Bearer ${token}`
     }
