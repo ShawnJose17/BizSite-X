@@ -51,12 +51,8 @@ app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
 
-import path from "path";
-
-const __dirname = path.resolve();
-
 app.use(express.static(path.join(__dirname, "client/dist")));
 
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "client/dist/index.html"));
+app.use((req, res) => {
+  res.sendFile(path.join(__dirname, "../client/dist/index.html"));
 });
