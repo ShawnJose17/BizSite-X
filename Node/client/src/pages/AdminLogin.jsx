@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { loginAdmin } from "../services/api";
+import { useNavigate } from "react-router-dom";
 
 function AdminLogin() {
   const [form, setForm] = useState({ username: "", password: "" });
@@ -21,7 +22,8 @@ function AdminLogin() {
     try {
       const data = await loginAdmin(form);
       localStorage.setItem("token", data.token);
-      window.location.href = "/admin/dashboard";
+      const navigate = useNavigate();
+      navigate("/dashboard");
     } catch (err) {
       setError(err.message);
     } finally {

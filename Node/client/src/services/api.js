@@ -1,7 +1,7 @@
 const BASE_URL = import.meta.env.VITE_API_URL || "";
 
 export const loginAdmin = async (data) => {
-  const res = await fetch(`${API_BASE}/admin/login`, {
+  const res = await fetch(`/api/admin/login`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
@@ -25,7 +25,7 @@ export const getDashboardData = async () => {
     throw new Error("No token found");
   }
 
-  const res = await fetch(`${API_BASE}/admin/dashboard-data`, {
+  const res = await fetch(`/dashboard-data`, {
     headers: {
       Authorization: `Bearer ${token}`
     }
@@ -47,7 +47,7 @@ export const getContacts = async () => {
     throw new Error("No token found");
   }
 
-  const res = await fetch("${BASE_URL}/contact", {
+  const res = await fetch("/contact", {
     headers: {
       Authorization: `Bearer ${token}`
     }

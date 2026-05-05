@@ -13,6 +13,15 @@ const cors = require("cors");
 
 const app = express();
 
+const PORT = process.env.PORT || 3000;
+
+// Global rate limit
+const globalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+  message: { error: "Too many requests, please try again later." }
+});
+
 // Trust proxy (important for correct IP detection behind proxies)
 app.set("trust proxy", 1);
 
@@ -23,36 +32,29 @@ app.use(cors({
 // Security headers
 app.use(helmet());
 
-// Global rate limit
-const globalLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 100,
-  message: { error: "Too many requests, please try again later." }
-});
-
 app.use(globalLimiter);
 
 // JSON body limit
 app.use(express.json({ limit: "10kb" }));
 
-// Serve frontend
-app.use(express.static(path.join(__dirname, "public")));
-
 // Routes
 app.use("/contact", contactRoutes);
-app.use("/admin", adminRoutes);
+app.use("/api/admin", adminRoutes);
 
-// Centralized error handler (MUST BE LAST)
-app.use(errorHandler);
+app.use("/admin", express.static(path.join(__dirname, "client/dist")));
 
-const PORT = process.env.PORT || 3000;
-
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+// React Router fallback (ONLY for admin)
+app.get(/^\/admin(\/.*)?$/, (req, res) => {
+  res.sendFile(path.join(__dirname, "client/dist/index.html"));
 });
 
-app.use(express.static(path.join(__dirname, "client/dist")));
+// Public site already served here
+app.use(express.static(path.join(__dirname, "public")));
 
-app.use((req, res) => {
-  res.sendFile(path.join(__dirname, "../client/dist/index.html"));
+// Error handler LAST
+app.use(errorHandler);
+
+// Start server LAST
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });

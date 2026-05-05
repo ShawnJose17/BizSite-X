@@ -2,14 +2,16 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import AdminLogin from "./pages/AdminLogin";
 import Dashboard from "./pages/Dashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
+import { Navigate } from "react-router-dom";
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/admin/login" element={<AdminLogin />} />
+        <Route path="*" element={<Navigate to="/" />} />
+        <Route path="/" element={<AdminLogin />} />
         <Route
-          path="/admin/dashboard"
+          path="/dashboard"
           element={
             <ProtectedRoute>
               <Dashboard />

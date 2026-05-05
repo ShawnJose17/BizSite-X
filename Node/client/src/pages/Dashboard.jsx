@@ -61,7 +61,7 @@ function Dashboard() {
 
   const handleLogout = () => {
     localStorage.removeItem("token");
-    window.location.href = "/admin/login";
+    window.location.href = "/api/admin/login";
   };
 
   const confirmDelete = async () => {
