@@ -47,7 +47,7 @@ export const getContacts = async () => {
     throw new Error("No token found");
   }
 
-  const res = await fetch("/contact", {
+  const res = await fetch("http://localhost:3000/contact", {
     headers: {
       Authorization: `Bearer ${token}`
     }
