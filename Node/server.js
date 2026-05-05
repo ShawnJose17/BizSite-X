@@ -48,3 +48,15 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
+
+import path from "path";
+
+const __dirname = path.resolve();
+
+// Serve static frontend
+app.use(express.static(path.join(__dirname, "client/dist")));
+
+// Catch-all (for React routing)
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "client/dist/index.html"));
+});
