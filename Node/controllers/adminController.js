@@ -28,10 +28,12 @@ exports.loginAdmin = async (req, res, next) => {
 
   try {
     // 1️⃣ Check login attempts for this IP
-    const [attemptRows] = await db.execute(
-      "SELECT * FROM login_attempts WHERE ip_address = ?",
+    const attemptResult = await db.query(
+      "SELECT * FROM login_attempts WHERE ip_address = $1",
       [ip]
     );
+
+    const attemptRows = attemptResult.rows;
 
     if (attemptRows.length > 0) {
       const attemptData = attemptRows[0];
@@ -50,10 +52,12 @@ exports.loginAdmin = async (req, res, next) => {
     }
 
     // 2️⃣ Check admin credentials
-    const [rows] = await db.execute(
-      "SELECT * FROM admin WHERE username = ?",
+    const result = await db.query(
+      "SELECT * FROM admin WHERE username = $1",
       [username]
     );
+
+    const rows = result.rows;
 
     if (rows.length === 0) {
       await recordFailedAttempt(ip);
@@ -83,27 +87,29 @@ exports.loginAdmin = async (req, res, next) => {
 };
 
 async function recordFailedAttempt(ip) {
-  const [rows] = await db.execute(
-    "SELECT * FROM login_attempts WHERE ip_address = ?",
+  const result = await db.query(
+    "SELECT * FROM login_attempts WHERE ip_address = $1",
     [ip]
   );
 
+  const rows = result.rows;
+
   if (rows.length === 0) {
-    await db.execute(
-      "INSERT INTO login_attempts (ip_address, attempts) VALUES (?, 1)",
+    await db.query(
+      "INSERT INTO login_attempts (ip_address, attempts) VALUES ($1, 1)",
       [ip]
     );
   } else {
-    await db.execute(
-      "UPDATE login_attempts SET attempts = attempts + 1 WHERE ip_address = ?",
+    await db.query(
+      "UPDATE login_attempts SET attempts = attempts + 1 WHERE ip_address = $1",
       [ip]
     );
   }
 }
 
 async function resetAttempts(ip) {
-  await db.execute(
-    "UPDATE login_attempts SET attempts = 0 WHERE ip_address = ?",
+  await db.query(
+    "UPDATE login_attempts SET attempts = 0 WHERE ip_address = $1",
     [ip]
   );
 }

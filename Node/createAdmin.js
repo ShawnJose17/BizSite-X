@@ -8,8 +8,8 @@ async function createAdmin() {
 
   const hashedPassword = await bcrypt.hash(password, 12);
 
-  await db.execute(
-    "INSERT INTO admin (username, password) VALUES (?, ?)",
+  await db.query(
+    "INSERT INTO admin (username, password) VALUES ($1, $2)",
     [username, hashedPassword]
   );
 
