@@ -1,7 +1,7 @@
-const BASE_URL = import.meta.env.VITE_API_URL || "";
+const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 export const loginAdmin = async (data) => {
-  const res = await fetch(`${API_BASE}/admin/login`, {
+  const res = await fetch(`${BASE_URL}/api/admin/login`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
@@ -18,36 +18,10 @@ export const loginAdmin = async (data) => {
   return result;
 };
 
-export const getDashboardData = async () => {
-  const token = localStorage.getItem("token");
-
-  if (!token) {
-    throw new Error("No token found");
-  }
-
-  const res = await fetch(`${API_BASE}/admin/dashboard-data`, {
-    headers: {
-      Authorization: `Bearer ${token}`
-    }
-  });
-
-  const data = await res.json();
-
-  if (!res.ok) {
-    throw new Error(data.error || "Failed to fetch dashboard data");
-  }
-
-  return data;
-};
-
 export const getContacts = async () => {
   const token = localStorage.getItem("token");
 
-  if (!token) {
-    throw new Error("No token found");
-  }
-
-  const res = await fetch("${BASE_URL}/contact", {
+  const res = await fetch(`${BASE_URL}/contact`, {
     headers: {
       Authorization: `Bearer ${token}`
     }
@@ -57,6 +31,28 @@ export const getContacts = async () => {
 
   if (!res.ok) {
     throw new Error(data.error || "Failed to fetch contacts");
+  }
+
+  return data;
+};
+
+export const getDashboardData = async () => {
+  const token = localStorage.getItem("token");
+
+  if (!token) {
+    throw new Error("No token found");
+  }
+
+  const res = await fetch(`/dashboard-data`, {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  });
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    throw new Error(data.error || "Failed to fetch dashboard data");
   }
 
   return data;

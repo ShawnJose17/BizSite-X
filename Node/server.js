@@ -13,13 +13,7 @@ const cors = require("cors");
 
 const app = express();
 
-// Trust proxy (important for correct IP detection behind proxies)
-app.set("trust proxy", 1);
-
-app.use(cors());
-
-// Security headers
-app.use(helmet());
+const PORT = process.env.PORT || 3000;
 
 // Global rate limit
 const globalLimiter = rateLimit({
@@ -28,33 +22,38 @@ const globalLimiter = rateLimit({
   message: { error: "Too many requests, please try again later." }
 });
 
+// Trust proxy (important for correct IP detection behind proxies)
+app.set("trust proxy", 1);
+
+app.use(cors({
+  origin: "*", // later restrict this
+}));
+
+// Security headers
+app.use(helmet());
+
 app.use(globalLimiter);
 
 // JSON body limit
 app.use(express.json({ limit: "10kb" }));
 
-// Serve frontend
-app.use(express.static(path.join(__dirname, "public")));
-
 // Routes
 app.use("/contact", contactRoutes);
-app.use("/admin", adminRoutes);
+app.use("/api/admin", adminRoutes);
 
-// Centralized error handler (MUST BE LAST)
-app.use(errorHandler);
+app.use("/admin", express.static(path.join(__dirname, "client/dist")));
 
-const PORT = process.env.PORT || 3000;
-
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+app.get("/admin/*splat", (req, res) => {
+  res.sendFile(path.join(__dirname, "client/dist/index.html"));
 });
 
-import path from "path";
+// Public site already served here
+app.use(express.static(path.join(__dirname, "public")));
 
-const __dirname = path.resolve();
+// Error handler LAST
+app.use(errorHandler);
 
-app.use(express.static(path.join(__dirname, "client/dist")));
-
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "client/dist/index.html"));
+// Start server LAST
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
