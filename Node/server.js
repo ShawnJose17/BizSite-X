@@ -43,8 +43,7 @@ app.use("/api/admin", adminRoutes);
 
 app.use("/admin", express.static(path.join(__dirname, "client/dist")));
 
-// React Router fallback (ONLY for admin)
-app.get(/^\/admin(\/.*)?$/, (req, res) => {
+app.get("/admin/*splat", (req, res) => {
   res.sendFile(path.join(__dirname, "client/dist/index.html"));
 });
 

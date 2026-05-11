@@ -1,15 +1,18 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+
 import AdminLogin from "./pages/AdminLogin";
 import Dashboard from "./pages/Dashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
-import { Navigate } from "react-router-dom";
 
 function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/admin">
       <Routes>
-        <Route path="*" element={<Navigate to="/" />} />
+
+        {/* Login */}
         <Route path="/" element={<AdminLogin />} />
+
+        {/* Dashboard */}
         <Route
           path="/dashboard"
           element={
@@ -18,6 +21,10 @@ function App() {
             </ProtectedRoute>
           }
         />
+
+        {/* Unknown routes */}
+        <Route path="*" element={<Navigate to="/" />} />
+
       </Routes>
     </BrowserRouter>
   );
