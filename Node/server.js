@@ -26,7 +26,7 @@ const globalLimiter = rateLimit({
 app.set("trust proxy", 1);
 
 app.use(cors({
-  origin: "*", // later restrict this
+  origin: "https://asterra.onrender.com", // later restrict this
 }));
 
 // Security headers
@@ -49,6 +49,10 @@ app.get("/admin/*splat", (req, res) => {
 
 // Public site already served here
 app.use(express.static(path.join(__dirname, "public")));
+
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "public/index.html"));
+});
 
 // Error handler LAST
 app.use(errorHandler);
