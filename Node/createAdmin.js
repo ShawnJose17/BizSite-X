@@ -2,19 +2,19 @@ require("dotenv").config();
 const bcrypt = require("bcryptjs");
 const db = require("./config/db");
 
-async function createAdmin() {
+async function updateAdmin() {
   const username = "admin";
-  const password = "StrongPassword123";
+  const password = "admin123";
 
   const hashedPassword = await bcrypt.hash(password, 12);
 
   await db.query(
-    "INSERT INTO admin (username, password) VALUES ($1, $2)",
-    [username, hashedPassword]
+    "UPDATE admin SET password = $1 WHERE username = $2",
+    [hashedPassword, username]
   );
 
-  console.log("Admin created successfully");
+  console.log("Password updated");
   process.exit();
 }
 
-createAdmin();
+updateAdmin();
