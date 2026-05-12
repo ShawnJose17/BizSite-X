@@ -38,7 +38,7 @@ app.use(globalLimiter);
 app.use(express.json({ limit: "10kb" }));
 
 // Routes
-app.use("/contact", contactRoutes);
+app.use("/api/contact", contactRoutes);
 app.use("/api/admin", adminRoutes);
 
 app.use("/admin", express.static(path.join(__dirname, "client/dist")));
